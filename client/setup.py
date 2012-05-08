@@ -11,7 +11,7 @@ import json
 import ConfigParser
 cp = ConfigParser.ConfigParser()
 try:
-    cp.read('../../eggs_version.ini')
+    cp.read('../eggs_version.ini')
     version = dict(cp.items('default'))['version']
 except:
     # inside and egg, read the cache version instead.

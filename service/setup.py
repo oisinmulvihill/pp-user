@@ -5,9 +5,25 @@ Setuptools script for pp-user-service (pp.user.service)
 """
 from setuptools import setup, find_packages
 
+# Get the version from the source or the cached egg version:
+import json
+import ConfigParser
+cp = ConfigParser.ConfigParser()
+try:
+    cp.read('../eggs_version.ini')
+    version = dict(cp.items('default'))['version']
+except:
+    # inside and egg, read the cache version instead.
+    with file("cached_version.json", "r") as fd:
+        version = json.loads(fd.read())['egg_version']
+else:
+    # write out the version so its cached for in egg use:
+    with file("cached_version.json", "w") as fd:
+        fd.write(json.dumps(dict(egg_version=version)))
+
 Name = 'pp-user-service'
 ProjectUrl = ""
-Version = "1.0.0dev"
+Version = version
 Author = ''
 AuthorEmail = 'everyone at pythonpro dot co dot uk'
 Maintainer = ''
@@ -17,7 +33,7 @@ Description = Summary
 ShortDescription = Summary
 
 needed = [
-    'sphinx', # for docs generation.
+    'sphinx',  # for docs generation.
 
     # base auth set up:
     'pp-web-base',
