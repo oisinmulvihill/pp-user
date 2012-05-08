@@ -9,9 +9,8 @@ PythonPro Limited
 import unittest
 import pkg_resources
 from pyramid import testing
-#from pyramid.config import Configurator
 
-from pp.bookingsys.frontend.views import status
+from pp.user.service.views import status
 
 
 # def _initTestingDB():
@@ -21,7 +20,7 @@ from pp.bookingsys.frontend.views import status
 #     return session
 
 
-class OrganisationREST(unittest.TestCase):
+class UserServiceTC(unittest.TestCase):
 
     def setUp(self):
         self.config = testing.setUp()
@@ -30,7 +29,6 @@ class OrganisationREST(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-
     def test_status_view(self):
         """Test what gets returned by the status view.
         """
@@ -38,8 +36,8 @@ class OrganisationREST(unittest.TestCase):
 
         info = status(request)
 
-        pkg = pkg_resources.get_distribution("pp-bookingsys-frontend")
+        pkg = pkg_resources.get_distribution("pp-user-service")
 
         self.assertEqual(info['status'], 'ok')
+        self.assertEqual(info['name'], 'pp-user-service')
         self.assertEqual(info['version'], pkg.version)
-
