@@ -1,0 +1,12 @@
+.DS_Store*
+tmp
+build
+dist
+syntax: glob
+*.log
+*~
+*.egg-info*
+*.pyc
+*.db
+projects/*
+
