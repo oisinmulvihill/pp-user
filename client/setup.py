@@ -36,6 +36,7 @@ ShortDescription = Summary
 needed = [
     'sphinx',  # for docs generation.
     'evasion-common',
+    'requests',
 ]
 
 test_needed = [

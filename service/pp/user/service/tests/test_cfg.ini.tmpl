@@ -1,5 +1,11 @@
+# String template processed prior to server start.
+#
+# Needs:
+#
+#   path_and_db, host, port
+#
 [app:main]
-use = egg:pp-user-service
+use = egg:pp-bookingsys-frontend
 
 pyramid.reload_templates = true
 pyramid.debug_authorization = false
@@ -11,12 +17,12 @@ pyramid.default_locale_name = en
 # don't use as it screws JSON on exception handling: pyramid_debugtoolbar
 pyramid.includes =
 
-sqlalchemy.url = sqlite:///%(here)s/frontend.db
+sqlalchemy.url = sqlite:///$path_and_db
 
 [server:main]
 use = egg:Paste#http
-host = 0.0.0.0
-port = 16801
+host = $host
+port = $port
 
 # Begin logging configuration
 
@@ -39,7 +45,7 @@ handlers =
 qualname = pp
 
 [logger_sqlalchemy]
-level = INFO
+level = WARN
 handlers =
 qualname = sqlalchemy.engine
 # "level = INFO" logs SQL queries.

@@ -60,10 +60,10 @@ PackageData = {
 # Web Entry points
 EntryPoints = """
 [console_scripts]
-userservice-admin = pp.user.service.scripts.main:main
+    userservice-admin = pp.user.service.scripts.main:main
 
 [paste.app_factory]
-      main = pp.user.service:main
+    main = pp.user.service:main
 """
 
 setup(
