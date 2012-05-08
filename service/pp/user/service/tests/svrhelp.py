@@ -62,7 +62,6 @@ class ServerRunner(object):
         self.config = ConfigParser.ConfigParser()
         self.config.readfp(StringIO.StringIO(data))
 
-
     def cleanup(self):
         """Clean up temp files and directories.
         """
@@ -77,7 +76,6 @@ class ServerRunner(object):
         except OSError:
             print("Unable to remove tmp dir: %s" % self.test_dir)
 
-
     def start(self):
         """Spawn the web app in testserver mode.
 
@@ -91,7 +89,7 @@ class ServerRunner(object):
         # the web server is ready to accept requests.
         #
         self.serverProcess = subprocess.Popen(
-            args = self.cmd,
+            args=self.cmd,
             shell=True,
             cwd=self.test_dir,
         )
@@ -106,7 +104,6 @@ class ServerRunner(object):
         time.sleep(2)
 
         return pid
-
 
     def stop(self):
         """Stop the server running."""
@@ -139,7 +136,6 @@ class ServerRunner(object):
                 shell=True,
             )
 
-
     def isRunning(self):
         """Called to testserver
 
@@ -155,7 +151,6 @@ class ServerRunner(object):
             returned = True
 
         return returned
-
 
 
 # Ok, tie the above together:

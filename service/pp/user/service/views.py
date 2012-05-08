@@ -39,8 +39,6 @@ def status(request):
     )
 
 
-
-
 # -- Test Request Methods -----------------------------------------------------
 #
 def any_data_present(request):
@@ -51,11 +49,13 @@ def any_data_present(request):
         data = {}
     return json.dumps(data)
 
+
 @view_config(route_name='verb_test', request_method='GET', renderer="json")
 def get_view(request):
     msg = 'GET id <%s>' % request.matchdict['id']
     # to_json = False : renderer takes care of conversion to json.
     return status_body(message=msg, to_json=False)
+
 
 @view_config(route_name='verb_test', request_method='PUT', renderer="json")
 def put_view(request):
@@ -63,15 +63,15 @@ def put_view(request):
     msg = 'PUT id <%s> JSON body <%s>' % (request.matchdict['id'], body)
     return status_body(message=msg, to_json=False)
 
+
 @view_config(route_name='verb_test', request_method='POST', renderer="json")
 def post_view(request):
     body = any_data_present(request)
     msg = 'POST id <%s> JSON body <%s>' % (request.matchdict['id'], body)
     return status_body(message=msg, to_json=False)
 
+
 @view_config(route_name='verb_test', request_method='DELETE', renderer="json")
 def delete_view(request):
     msg = 'DELETE id <%s>' % request.matchdict['id']
     return status_body(message=msg, to_json=False)
-
-
