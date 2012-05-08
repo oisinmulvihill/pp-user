@@ -138,7 +138,7 @@ def develop(options):
 @easy.cmdopts([
     ('target_dir=', 't', "The directory to put build bdist_egg output."),
 ])
-def build_docs(options):
+def docs(options):
     """Build the latest sphinx documentation.
     """
     docs = path("docs")

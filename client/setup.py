@@ -58,9 +58,6 @@ PackageData = {
 
 # Example console script and paster template integration:
 EntryPoints = {
-    'console_scripts': [
-        'clientapp = pp.user.client.scripts.main:main',
-    ],
 }
 
 

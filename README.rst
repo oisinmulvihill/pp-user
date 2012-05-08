@@ -1,23 +1,30 @@
 pp-user-service
 ===============
 
-service
--------
+This provides the User Service to authenticate and recover metadata about
+people stored. This repository provides two egg packages. The REST service and
+client packages.
 
-The REST service which provides user identity and management.
+For more information see the sphinx documentation.
 
-pp.user.service
+E.g.::
+
+    # From a clean checkout set up all parts of this project (once off):
+    python setup.py develop
+
+    # To (re)build the sphinx documentation:
+    python setup.py docs
+
+    # Open the documentation in a browser on your machine:
+    firefox docs/build/html/index.html
 
 
-userservice-admin
-~~~~~~~~~~~~~~~~~
+Quick start
+-----------
 
-The command line tool to manage the user service. It can add / remove users.
+Run the server
+~~~~~~~~~~~~~~
 
-client
-------
+Run the server using the default development.ini do::
 
-The REST client which talks to the REST service.
-
-pp.user.client
-
+    python setup.py runserver
