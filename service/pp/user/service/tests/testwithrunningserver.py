@@ -10,6 +10,7 @@ import pkg_resources
 
 from . import svrhelp
 from pp.user.client import rest
+from pp.user.validate import userdata
 
 
 # Start the test app running on module set up and stop it running on teardown.
@@ -58,65 +59,7 @@ class UserServiceTestCase(unittest.TestCase):
             email="fred.bale@example.net",
         )
 
-        self.assertRaises(rest.UserNamePresentError, self.us.user.add, user)
-
-    def test_minimal_account_data(self):
-        """Test that the minimal account details are provided.
-        """
-        user = dict(
-            #username="bob",
-            password="123456",
-            email="bob.sprocket@example.com",
-        )
-
-        self.assertRaises(rest.UserNameRequiredError, self.us.user.add, user)
-
-        # test the username is greater then 2 characters
-        user = dict(
-            username="bo",
-            password="123456",
-            email="bob.sprocket@example.com",
-        )
-
-        self.assertRaises(rest.UserNameToSmallError, self.us.user.add, user)
-
-        user = dict(
-            username="bob",
-            #password="123456",
-            email="bob.sprocket@example.com",
-        )
-
-        self.assertRaises(rest.PasswordRequiredError, self.us.user.add, user)
-
-        user = dict(
-            username="bob",
-            password="123456",
-            #email="bob.sprocket@example.com",
-        )
-
-        self.assertRaises(rest.EmailRequiredError, self.us.user.add, user)
-
-    def test_minimum_password_length(self):
-        """Test the minimum six character password is provided.
-        """
-        user = dict(
-            username="bob",
-            password="12345",
-            email="bob.sprocket@example.com",
-        )
-
-        self.assertRaises(rest.PasswordTooSmallError, self.us.user.add, user)
-
-        user = dict(
-            username="bob",
-            password="123456",
-            email="bob.sprocket@example.com",
-        )
-
-        bob = self.us.user.add(user)
-
-        # success!
-        self.assertEquals(bob['username'], 'bob')
+        self.assertRaises(userdata.UserNamePresentError, self.us.user.add, user)
 
     def test_password_change(self):
         """Test changing a user's password.
@@ -185,7 +128,7 @@ class UserServiceTestCase(unittest.TestCase):
         self.assertTrue('uid' in bob)
 
         # Check I can't add the same user a second time:
-        self.assertRaises(rest.UserPresentError, self.us.user.add, user)
+        self.assertRaises(userdata.UserPresentError, self.us.user.add, user)
 
         # Test verifcation of the password:
         plain_pw = "123456"
@@ -216,4 +159,4 @@ class UserServiceTestCase(unittest.TestCase):
 
         # Now delete the user's account from the system.
         self.us.user.remove("bobby")
-        self.assertRaises(rest.UserNotPresentError, self.us.user.remove, "bobby")
+        self.assertRaises(userdata.UserNotPresentError, self.us.user.remove, "bobby")
