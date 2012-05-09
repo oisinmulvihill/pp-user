@@ -28,6 +28,9 @@ Running all tests
 The runtests.py is used for this and is called as follows::
 
     python runtests.py -sc nose.cfg
+ 
+    # with coverage of pp.user namespace:
+    python runtests.py -sc nose.cfg --with-coverage --cover-package pp.user
 
 The nose.cfg configures the locations of the egg packages to test.
 
