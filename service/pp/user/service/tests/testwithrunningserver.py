@@ -175,6 +175,15 @@ class UserServiceTestCase(unittest.TestCase):
         # No plain text password is stored or sent over the wire:
         self.assertTrue('password_hash' in bob)
 
+        bob = self.us.user.get(user['username'])
+
+        self.assertEquals(bob['username'], user['username'])
+        self.assertEquals(bob['display_name'], user['display_name'])
+        self.assertEquals(bob['email'], user['email'])
+        self.assertEquals(bob['phone'], user['phone'])
+        self.assertEquals(bob['extra'], user['extra'])
+        self.assertTrue('uid' in bob)
+
         # Check I can't add the same user a second time:
         self.assertRaises(rest.UserPresentError, self.us.user.add, user)
 
