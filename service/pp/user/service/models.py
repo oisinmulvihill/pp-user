@@ -7,6 +7,15 @@ PythonPro Limited
 """
 import logging
 
+
+def get_log(fn=''):
+    if fn and fn.strip():
+        fn = ".%s" % fn
+    return logging.getLogger('pp.user.service.models%s' % fn)
+
+
+
+
 #import transaction
 # from sqlalchemy import Column
 # from sqlalchemy import Integer
@@ -21,22 +30,6 @@ import logging
 # DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 # Base = declarative_base()
 
-
-def get_log():
-    return logging.getLogger("pp.user.service.models")
-
-
-# Not currently used:
-#
-# class MyModel(Base):
-#     __tablename__ = 'models'
-#     id = Column(Integer, primary_key=True)
-#     name = Column(Unicode(255), unique=True)
-#     value = Column(Integer)
-
-#     def __init__(self, name, value):
-#         self.name = name
-#         self.value = value
 
 def populate():
     # session = DBSession()

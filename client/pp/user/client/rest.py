@@ -5,6 +5,7 @@ This provides the REST classes used to access the User Service.
 """
 import json
 import logging
+from urlparse import urljoin
 
 import requests
 
@@ -32,18 +33,36 @@ def new_user_dict():
 
 class UserManagement(object):
 
+    ADD = "/user"
+
+    GET_UPDATE_OR_DELETE = "/user/%()s/"
+
     def __init__(self, uri):
         self.log = get_log("UserManagement")
-        self.uri = uri
+        self.base_uri = uri
 
     def add(self, user):
+        """Add a new user to the system.
+
+        :returns: The update user dict.
+
         """
-        """
+        self.log.debug("add: attempting to add user <%s>" % user)
+
         user = userdata.creation_required_fields(user)
 
-        u = new_user_dict()
+        uri = urljoin(self.base_uri, self.ADD)
+        self.log.debug("add: uri <%s>" % uri)
 
-        return u
+        res = requests.put(uri, user)
+
+        res.raise_for_status()
+
+        self.log.debug("Resource: %s" % res.content)
+
+        rc = json.loads(res.content)
+
+        return rc
 
     def authenticate(self, username, plain_password):
         """
