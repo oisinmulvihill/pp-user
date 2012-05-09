@@ -22,6 +22,15 @@ E.g.::
 Quick start
 -----------
 
+Running all tests
+~~~~~~~~~~~~~~~~~
+
+The runtests.py is used for this and is called as follows::
+
+    python runtests.py -sc nose.cfg
+
+The nose.cfg configures the locations of the egg packages to test.
+
 Run the server
 ~~~~~~~~~~~~~~
 
