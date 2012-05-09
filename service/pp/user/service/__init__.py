@@ -48,6 +48,7 @@ def main(global_config, **settings):
     # Make the pyramid app I'll then wrap in other middleware:
     app = config.make_wsgi_app()
 
+    # Add in the configured pp_auth magic.
     app = pp_auth_middleware(settings, app)
 
     # RESTful helper class to handle PUT, DELETE over POST requests:
@@ -58,4 +59,3 @@ def main(global_config, **settings):
     app = restfulhelpers.JSONErrorHandler(app)
 
     return app
-

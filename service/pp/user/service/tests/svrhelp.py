@@ -14,6 +14,7 @@ import ConfigParser
 from string import Template
 from pkg_resources import resource_string
 
+import pp.web.base
 from evasion.common import net
 
 
@@ -42,9 +43,17 @@ class ServerRunner(object):
 
         self.URI = "http://%s:%s" % (self.host, self.port)
 
+        # Set up the plain auth files the test server will use:
+        auth_dir = os.path.abspath(os.path.join(pp.web.base.__path__[0], "../../../auth"))
+        self.log.info("pp.web.base auth dir to copy: <%s>" % auth_dir)
+
         # Make directory to put file and other data into:
         self.test_dir = tempfile.mkdtemp()
         self.log.info("Test Server temp directory <%s>" % self.test_dir)
+
+        # copy in test dir:
+        # not very cross platform, but hey I'll worry about windows late (if ever):
+        os.system("cp -r %s %s" % (auth_dir, self.test_dir))
 
         # Get template in the tests dir:
         self.temp_db = os.path.join(self.test_dir, 'frontend.db')
@@ -70,11 +79,10 @@ class ServerRunner(object):
                 os.remove(f)
             except OSError:
                 os.system("rm %f" % f)
-
         try:
             os.removedirs(self.test_dir)
         except OSError:
-            print("Unable to remove tmp dir: %s" % self.test_dir)
+            os.system("rm -rf %f" % self.test_dir)
 
     def start(self):
         """Spawn the web app in testserver mode.

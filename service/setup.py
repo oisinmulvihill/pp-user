@@ -35,7 +35,7 @@ ShortDescription = Summary
 needed = [
     'sphinx',  # for docs generation.
 
-    # base auth set up:
+    'pp-auth',
     'pp-web-base',
 ]
 
