@@ -83,6 +83,8 @@ def user_auth(request):
     """
     log = get_log("user_auth")
 
+    log.debug("user_auth: here")
+
     username = request.matchdict['username'].strip().lower()
 
     log.debug("attempting to verify user <%s> authentication" % username)

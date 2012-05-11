@@ -39,7 +39,7 @@ class UserManagement(object):
 
     ALL = "/users/"
 
-    AUTH = "/user/auth/%()s/"
+    AUTH = "/auth/user/%(username)s/"
 
     GET_UPDATE_OR_DELETE = "/user/%()s/"
 
