@@ -9,6 +9,7 @@ from urlparse import urljoin
 
 import requests
 
+from pp.auth import pwtools
 from pp.user.validate import error
 from pp.user.validate import userdata
 
@@ -37,6 +38,8 @@ class UserManagement(object):
     ADD = "/users/"
 
     ALL = "/users/"
+
+    AUTH = "/user/auth/%()s/"
 
     GET_UPDATE_OR_DELETE = "/user/%()s/"
 
@@ -87,20 +90,43 @@ class UserManagement(object):
 
         if rc and "status" in rc and rc['status'] == "error":
             error = rc['error'].strip()
-            raise userdata.UserAddError()
+            if hasattr(userdata, error):
+                # re-raise the error:
+                raise getattr(userdata, error)(rc['message'])
+            else:
+                raise SystemError("%s: %s" % (error, rc['message']))
         else:
             return rc
 
-        self.log.debug("Resource: %s" % res.content)
-
-        return rc
-
     def authenticate(self, username, plain_password):
-        """
-        """
-        returned = False
+        """Verify the password for the given username.
 
-        return returned
+        :param username: The username string.
+
+        :param plain_password: The plain password to be hashed and compared.
+
+        :returns: True, password ok otherwise False.
+
+        """
+        self.log.debug("authenticate: user <%s>" % username)
+
+        data = dict(hashed_password=pwtools.hash_password(plain_password))
+
+        uri = urljoin(self.base_uri, self.AUTH % dict(username=username))
+        self.log.debug("authenticate: uri <%s>" % uri)
+
+        res = requests.put(uri, json.dumps(data))
+        rc = json.loads(res.content)
+
+        if rc and "status" in rc and rc['status'] == "error":
+            error = rc['error'].strip()
+            if hasattr(userdata, error):
+                # re-raise the error:
+                raise getattr(userdata, error)(rc['message'])
+            else:
+                raise SystemError("%s: %s" % (error, rc['message']))
+        else:
+            return rc
 
 
 class UserService(object):

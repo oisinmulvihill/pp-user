@@ -10,6 +10,10 @@ class UserAddError(Exception):
     """A server error occured adding a user."""
 
 
+class UserPresentError(Exception):
+    """Raised when a user was attempted to be added when present."""
+
+
 class UserNameRequiredError(Exception):
     """Raised when a username is not present or empty."""
 

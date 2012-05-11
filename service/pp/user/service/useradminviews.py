@@ -10,6 +10,7 @@ import logging
 import transaction
 from pyramid.view import view_config
 
+from pp.auth import pwtools
 from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 
@@ -65,6 +66,42 @@ def the_users(request):
     log.debug("Returning all %d user(s)." % len(the_users))
 
     return the_users
+
+
+@view_config(route_name='user_auth', request_method='POST', renderer='json')
+@view_config(route_name='user_auth-1', request_method='POST', renderer='json')
+def user_auth(request):
+    """Handle password verification.
+
+    The username is given along with the POSTed password_hash.
+
+    No plain text password is sent. The hashed version is given and needs to
+    verfied.
+
+    :returns: True, password hash is ok otherwise False.
+
+    """
+    log = get_log("user_auth")
+
+    username = request.matchdict['username'].strip().lower()
+
+    log.debug("attempting to verify user <%s> authentication" % username)
+
+    user_data = request.json_body
+    log.debug("<%s>: %s" % (type(user_data), user_data))
+
+    hashed_pw = user_data['hashed_password']
+
+    found_user = user.get(username)
+
+    result = pwtools.validate_password_hash(
+        hashed_pw,
+        found_user['password_hash']
+    )
+
+    log.debug("user <%s> password validated? %s" % (found_user['username'], result))
+
+    return result
 
 
 @view_config(route_name='user', request_method='POST', renderer='json')

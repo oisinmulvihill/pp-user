@@ -43,6 +43,9 @@ def main(global_config, **settings):
     config.add_route('the_users', '/users')
     config.add_route('the_users-1', '/users/')
 
+    config.add_route('user_auth', '/user/auth/{username}/')
+    config.add_route('user_auth-1', '/user/auth/{username}/')
+
     config.add_route('user', '/user/{username}/')
     config.add_route('user-1', '/user/{username}/')
 

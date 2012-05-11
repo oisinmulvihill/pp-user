@@ -69,7 +69,7 @@ class UserServiceTC(unittest.TestCase):
             email="fred.bale@example.net",
         )
 
-        self.assertRaises(userdata.UserNamePresentError, self.us.user.add, user)
+        self.assertRaises(userdata.UserPresentError, self.us.user.add, user)
 
     def test_password_change(self):
         """Test changing a user's password.
