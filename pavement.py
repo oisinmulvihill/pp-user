@@ -79,7 +79,7 @@ def runserver(options):
         while not p.poll():
             # p.poll() returns None while the program is still running
             # sleep for 1 second
-            time.sleep(1)
+            time.sleep(0.01)
             line = output_fd.readline()
             if line:
                 sys.stdout.write("> %s\n" % line.strip())

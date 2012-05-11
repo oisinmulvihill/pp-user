@@ -9,6 +9,7 @@ from urlparse import urljoin
 
 import requests
 
+from pp.user.validate import error
 from pp.user.validate import userdata
 
 
@@ -33,13 +34,40 @@ def new_user_dict():
 
 class UserManagement(object):
 
-    ADD = "/user"
+    ADD = "/users/"
+
+    ALL = "/users/"
 
     GET_UPDATE_OR_DELETE = "/user/%()s/"
 
     def __init__(self, uri):
         self.log = get_log("UserManagement")
         self.base_uri = uri
+
+    def all(self):
+        """Return all users currently on the system.
+
+        :returns: A list or users or an empty list.
+
+        """
+        self.log.debug("all: attempting to recover all users on the system.")
+
+        uri = urljoin(self.base_uri, self.ALL)
+        self.log.debug("all: uri <%s>" % uri)
+
+        res = requests.get(uri)
+
+        rc = json.loads(res.content)
+        if "status" in rc:
+            # List should be a list and not an error dict!
+            raise error.CommunicationError(rc['message'])
+
+        else:
+            return rc
+
+        self.log.debug("all: found <%s>" % len(rc))
+
+        return rc
 
     def add(self, user):
         """Add a new user to the system.
@@ -54,13 +82,16 @@ class UserManagement(object):
         uri = urljoin(self.base_uri, self.ADD)
         self.log.debug("add: uri <%s>" % uri)
 
-        res = requests.put(uri, user)
+        res = requests.put(uri, json.dumps(user))
+        rc = json.loads(res.content)
 
-        res.raise_for_status()
+        if rc and "status" in rc and rc['status'] == "error":
+            error = rc['error'].strip()
+            raise userdata.UserAddError()
+        else:
+            return rc
 
         self.log.debug("Resource: %s" % res.content)
-
-        rc = json.loads(res.content)
 
         return rc
 

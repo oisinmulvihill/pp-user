@@ -10,6 +10,8 @@ import pkg_resources
 
 from . import svrhelp
 from pp.user.client import rest
+from pp.common.db import dbsetup
+from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 
 
@@ -17,14 +19,19 @@ from pp.user.validate import userdata
 #
 def setup_module():
     svrhelp.setup_module()
+    # Create the db now the server is running in its own dir.
+    dbsetup.create()
 
 teardown_module = svrhelp.teardown_module
 
 
-class UserServiceTestCase(unittest.TestCase):
+class UserServiceTC(unittest.TestCase):
 
     def setUp(self):
         self.us = rest.UserService(svrhelp.webapp.URI)
+
+        for u in user.find():
+            user.remove(u.id)
 
     def testRestClientPing(self):
         """Test the rest client's ping of the user service.
@@ -44,6 +51,9 @@ class UserServiceTestCase(unittest.TestCase):
     def test_existing_username(self):
         """Test that a username must be unique for created accounts.
         """
+        # make sure nothing is there to begin with.
+        self.assertEquals(len(self.us.user.all()), 0)
+
         user = dict(
             username="bob",
             password="123456",

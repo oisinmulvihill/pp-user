@@ -39,8 +39,12 @@ def main(global_config, **settings):
     config.add_route('home', '/')
 
     # User management
-    config.add_route('users', '/user')
+
+    config.add_route('the_users', '/users')
+    config.add_route('the_users-1', '/users/')
+
     config.add_route('user', '/user/{username}/')
+    config.add_route('user-1', '/user/{username}/')
 
     # Testing clients for GET, PUT, POST, DELETE against out server:
     config.add_route('verb_test', '/verb/test/{id}')

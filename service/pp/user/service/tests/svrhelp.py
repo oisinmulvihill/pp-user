@@ -16,6 +16,7 @@ from pkg_resources import resource_string
 
 import pp.web.base
 from evasion.common import net
+from pp.web.base import common_db_configure
 
 
 def get_log():
@@ -70,6 +71,14 @@ class ServerRunner(object):
             fd.write(data)
         self.config = ConfigParser.ConfigParser()
         self.config.readfp(StringIO.StringIO(data))
+
+        config = ConfigParser.ConfigParser(dict(here=self.test_dir))
+        self.log.info("Setting up common db from <%s>" % self.temp_config)
+        config.read(self.temp_config)
+        common_db_configure(
+            settings=dict(config.items("app:main")),
+            use_transaction=False
+        )
 
     def cleanup(self):
         """Clean up temp files and directories.

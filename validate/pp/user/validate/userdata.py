@@ -6,6 +6,10 @@ server side.
 """
 
 
+class UserAddError(Exception):
+    """A server error occured adding a user."""
+
+
 class UserNameRequiredError(Exception):
     """Raised when a username is not present or empty."""
 
