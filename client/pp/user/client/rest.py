@@ -102,7 +102,7 @@ class UserManagement(object):
         """
         """
         self.log.debug("authenticate: user <%s>" % data['username'])
-        
+
     def authenticate(self, username, plain_password):
         """Verify the password for the given username.
 
@@ -114,11 +114,12 @@ class UserManagement(object):
 
         """
         self.log.debug("authenticate: user <%s>" % username)
-        
-        # TODO: at the moment this is travelling over the intranet we control, 
+
+        # TODO: at the moment this is travelling over the intranet we control,
         # however this needs much stronger protection i.e. HTTPS/SSL
-        # 
-        data = dict(password=plain_password.encode("base64"))  # obuscate for moment.
+        #
+        # obuscate for moment.
+        data = dict(password=plain_password.encode("base64"))
 
         uri = urljoin(self.base_uri, self.AUTH % dict(username=username))
         self.log.debug("authenticate: uri <%s>" % uri)
@@ -126,7 +127,7 @@ class UserManagement(object):
         res = requests.post(uri, json.dumps(data), headers={'content-type': 'application/json'})
         rc = json.loads(res.content)
 
-        # this should only be True or False and not a status dict 
+        # this should only be True or False and not a status dict
         # which has an error.
         if not isinstance(rc, bool):
             error = rc['error'].strip()
@@ -164,6 +165,3 @@ class UserService(object):
         res = requests.get(self.uri)
         res.raise_for_status()
         return json.loads(res.content)
-
-
-

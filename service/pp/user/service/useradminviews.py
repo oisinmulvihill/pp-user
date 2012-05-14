@@ -10,7 +10,7 @@ import logging
 import transaction
 from pyramid.view import view_config
 
-from pp.auth import pwtools
+#from pp.auth import pwtools
 from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 
@@ -92,7 +92,7 @@ def user_auth(request):
     log.debug("<%s>: %s" % (type(user_data), user_data))
 
     # obuscate the password so its not immediately obvious:
-    # Need to convert to SSL or some other form of secure 
+    # Need to convert to SSL or some other form of secure
     # transport.
     pw = user_data['password'].decode("base64")
     found_user = user.get(username)
