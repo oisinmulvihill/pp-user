@@ -84,7 +84,8 @@ class UserServiceTC(unittest.TestCase):
 
         plain_pw = "123456"
         username = user['username']
-        self.assertTrue(self.us.user.authenticate(username, plain_pw))
+        result = self.us.user.authenticate(username, plain_pw)
+        self.assertTrue(result)
 
         # Change and test the old password is no longer valid.
         self.us.user.update(dict(

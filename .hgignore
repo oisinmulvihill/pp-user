@@ -5,6 +5,7 @@ tmp
 build
 dist
 syntax: glob
+*.swp
 *.log
 *~
 *.egg-info*

@@ -39,7 +39,7 @@ class UserManagement(object):
 
     ALL = "/users/"
 
-    AUTH = "/auth/user/%(username)s/"
+    AUTH = "/access/auth/%(username)s/"
 
     GET_UPDATE_OR_DELETE = "/user/%()s/"
 
@@ -85,7 +85,7 @@ class UserManagement(object):
         uri = urljoin(self.base_uri, self.ADD)
         self.log.debug("add: uri <%s>" % uri)
 
-        res = requests.put(uri, json.dumps(user))
+        res = requests.put(uri, json.dumps(user), headers={'content-type': 'application/json'})
         rc = json.loads(res.content)
 
         if rc and "status" in rc and rc['status'] == "error":
@@ -98,6 +98,11 @@ class UserManagement(object):
         else:
             return rc
 
+    def update(self, data):
+        """
+        """
+        self.log.debug("authenticate: user <%s>" % data['username'])
+        
     def authenticate(self, username, plain_password):
         """Verify the password for the given username.
 
@@ -109,16 +114,21 @@ class UserManagement(object):
 
         """
         self.log.debug("authenticate: user <%s>" % username)
-
-        data = dict(hashed_password=pwtools.hash_password(plain_password))
+        
+        # TODO: at the moment this is travelling over the intranet we control, 
+        # however this needs much stronger protection i.e. HTTPS/SSL
+        # 
+        data = dict(password=plain_password.encode("base64"))  # obuscate for moment.
 
         uri = urljoin(self.base_uri, self.AUTH % dict(username=username))
         self.log.debug("authenticate: uri <%s>" % uri)
 
-        res = requests.put(uri, json.dumps(data))
+        res = requests.post(uri, json.dumps(data), headers={'content-type': 'application/json'})
         rc = json.loads(res.content)
 
-        if rc and "status" in rc and rc['status'] == "error":
+        # this should only be True or False and not a status dict 
+        # which has an error.
+        if not isinstance(rc, bool):
             error = rc['error'].strip()
             if hasattr(userdata, error):
                 # re-raise the error:

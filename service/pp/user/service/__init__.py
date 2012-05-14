@@ -43,8 +43,7 @@ def main(global_config, **settings):
     config.add_route('the_users', '/users')
     config.add_route('the_users-1', '/users/')
 
-    config.add_route('user_auth', '/auth/user/{username}')
-    config.add_route('user_auth-1', '/auth/user/{username}/')
+    config.add_route('user-auth', '/access/auth/{username}/')
 
     config.add_route('user', '/user/{username}')
     config.add_route('user-1', '/user/{username}/')
