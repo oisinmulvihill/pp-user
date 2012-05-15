@@ -82,7 +82,7 @@ class UserManagement(object):
         self.log.debug("get: attempting to get user <%s>" % username)
 
         uri = urljoin(self.base_uri, self.GET_UPDATE_OR_DELETE % dict(
-            username=username
+            username=username,
         ))
         self.log.debug("get: uri <%s>" % uri)
 
