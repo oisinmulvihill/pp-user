@@ -42,7 +42,7 @@ class UserManagement(object):
 
     AUTH = "/access/auth/%(username)s/"
 
-    GET_UPDATE_OR_DELETE = "/user/%()s/"
+    GET_UPDATE_OR_DELETE = "/user/%(username)s/"
 
     def __init__(self, uri):
         self.log = get_log("UserManagement")
