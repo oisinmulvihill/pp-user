@@ -33,6 +33,7 @@ if BASKET:
 SERVICEDIR = path(os.path.abspath(os.path.join(CWD, "service")))
 
 CLIENTDIR = path(os.path.abspath(os.path.join(CWD, "client")))
+VALIDATEDIR = path(os.path.abspath(os.path.join(CWD, "validate")))
 
 
 # Paver global options we'll add to:
@@ -55,6 +56,7 @@ easy.options(
     DEV_PKGS_IN_DEP_ORDER=[
         SERVICEDIR,
         CLIENTDIR,
+        VALIDATEDIR,
     ],
 )
 
