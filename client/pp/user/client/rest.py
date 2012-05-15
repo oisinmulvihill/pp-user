@@ -73,6 +73,33 @@ class UserManagement(object):
 
         return rc
 
+    def get(self, username):
+        """Get an existing user of the system.
+
+        :returns: The user dict.
+
+        """
+        self.log.debug("get: attempting to get user <%s>" % username)
+
+        uri = urljoin(self.base_uri, self.GET_UPDATE_OR_DELETE % dict(
+            username=username
+        ))
+        self.log.debug("get: uri <%s>" % uri)
+
+        res = requests.get(uri, headers=self.JSON_CT)
+        rc = json.loads(res.content)
+
+        # this should be a user dict and not a status which means error:
+        if rc and "status" in rc:
+            error = rc['error'].strip()
+            if hasattr(userdata, error):
+                # re-raise the error:
+                raise getattr(userdata, error)(rc['message'])
+            else:
+                raise SystemError("%s: %s" % (error, rc['message']))
+        else:
+            return rc
+
     def add(self, user):
         """Add a new user to the system.
 
