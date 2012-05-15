@@ -6,6 +6,29 @@ from pp.user.validate import userdata
 
 class UserDataTC(unittest.TestCase):
 
+    def test_validate_user_update(self):
+        """Test the update data validation.
+        """
+        # Missing username
+        data = dict()
+        self.assertRaises(userdata.UserNameRequiredError, userdata.user_update_fields_ok, data)
+
+        # No other fields results in a NOOP
+        data = dict(username="bob")
+        self.assertEquals(userdata.user_update_fields_ok(data), data)
+
+        # Missing new_password is too small.
+        data = dict(username="bob", new_password="")
+        self.assertRaises(userdata.PasswordTooSmallError, userdata.user_update_fields_ok, data)
+
+        data = dict(username="bob", new_password=None)
+        self.assertRaises(userdata.PasswordTooSmallError, userdata.user_update_fields_ok, data)
+
+        # trailing whitespace stripped:
+        data = dict(username="bob", new_password=" abc efg ")
+        correct = dict(username="bob", new_password="abc efg")
+        self.assertEquals(userdata.user_update_fields_ok(data), correct)
+
     def test_minimal_account_data(self):
         """Test that the minimal account details are provided.
         """

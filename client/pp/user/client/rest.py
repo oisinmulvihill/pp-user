@@ -9,7 +9,6 @@ from urlparse import urljoin
 
 import requests
 
-from pp.auth import pwtools
 from pp.user.validate import error
 from pp.user.validate import userdata
 
@@ -34,6 +33,8 @@ def new_user_dict():
 
 
 class UserManagement(object):
+
+    JSON_CT = {'content-type': 'application/json'}
 
     ADD = "/users/"
 
@@ -85,7 +86,7 @@ class UserManagement(object):
         uri = urljoin(self.base_uri, self.ADD)
         self.log.debug("add: uri <%s>" % uri)
 
-        res = requests.put(uri, json.dumps(user), headers={'content-type': 'application/json'})
+        res = requests.put(uri, json.dumps(user), headers=self.JSON_CT)
         rc = json.loads(res.content)
 
         if rc and "status" in rc and rc['status'] == "error":
@@ -99,9 +100,49 @@ class UserManagement(object):
             return rc
 
     def update(self, data):
+        """Update the details about an existing user.
+
+        :param data: This must contain the 'username' field at least.
+
+        You only need to provide the fields that are to be updated.
+
+        To change password, the "new_password" field is provided.
+
+        :returns: A dict containing the updated user details.
+
         """
-        """
-        self.log.debug("authenticate: user <%s>" % data['username'])
+        self.log.debug("update: validating given data")
+
+        data = userdata.user_update_fields_ok(data)
+        username = data['username']
+
+        self.log.debug("update: attempting to update user <%s>." % username)
+
+        # TODO: at the moment this is travelling over the intranet we control,
+        # however this needs much stronger protection i.e. HTTPS/SSL
+        #
+        # obuscate for moment.
+        if "new_password" in data:
+            data["new_password"] = data["new_password"].encode("base64")
+
+        uri = urljoin(self.base_uri, self.GET_UPDATE_OR_DELETE % dict(
+            username=username,
+        ))
+        self.log.debug("update: uri <%s>" % uri)
+
+        res = requests.post(uri, json.dumps(data), headers=self.JSON_CT)
+        rc = json.loads(res.content)
+
+        # This should be a user dict and not a status response:
+        if rc and "status" in rc:
+            error = rc['error'].strip()
+            if hasattr(userdata, error):
+                # re-raise the error:
+                raise getattr(userdata, error)(rc['message'])
+            else:
+                raise SystemError("%s: %s" % (error, rc['message']))
+        else:
+            return rc
 
     def authenticate(self, username, plain_password):
         """Verify the password for the given username.
@@ -124,7 +165,7 @@ class UserManagement(object):
         uri = urljoin(self.base_uri, self.AUTH % dict(username=username))
         self.log.debug("authenticate: uri <%s>" % uri)
 
-        res = requests.post(uri, json.dumps(data), headers={'content-type': 'application/json'})
+        res = requests.post(uri, json.dumps(data), headers=self.JSON_CT)
         rc = json.loads(res.content)
 
         # this should only be True or False and not a status dict

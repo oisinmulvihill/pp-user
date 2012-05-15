@@ -109,10 +109,60 @@ def user_auth(request):
 
 
 @view_config(route_name='user', request_method='POST', renderer='json')
+@view_config(route_name='user-1', request_method='POST', renderer='json')
 def user_update(request):
+    """Update a stored user on the system.
+
+    :returns: The updated user dict.
+
     """
+    log = get_log("user_update")
+
+    log.debug("here")
+
+    username = request.matchdict['username'].strip().lower()
+
+    log.debug("attempting to verify user <%s> authentication" % username)
+
+    user_data = request.json_body
+    log.debug("<%s>: %s" % (type(user_data), user_data))
+
+    found_user = user.get(username)
+
+    # un-obuscate the new password, not ideal!
+    if "new_password" in user_data:
+        try:
+            user_data["new_password"] = user_data["new_password"].decode("base64")
+        except Exception as e:
+            raise ValueError("The new_password not Base64 encoded: %s" % e)
+
+    user.update(**user_data)
+
+    result = found_user.to_dict()
+    log.debug("user <%s> updated ok." % (result['username']))
+
+    return result
+
+
+@view_config(route_name='user', request_method='GET', renderer='json')
+@view_config(route_name='user-1', request_method='GET', renderer='json')
+def user_get(request):
+    """Recover a user based on the given username.
+
+    :returns: The user dict.
+
     """
-    return {}
+    log = get_log("user_get")
+    log.debug("here")
+
+    username = request.matchdict['username'].strip().lower()
+    log.debug("attempting to recover <%s>" % username)
+
+    found_user = user.get(username)
+    result = found_user.to_dict()
+    log.debug("user <%s> recovered ok." % (result['username']))
+
+    return result
 
 
 @view_config(route_name='user', request_method='DELETE', renderer='json')
