@@ -13,6 +13,7 @@ from pyramid.view import view_config
 #from pp.auth import pwtools
 from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
+from pp.common.db.utils import DBGetError
 
 
 def get_log(extra=None):
@@ -89,7 +90,7 @@ def user_auth(request):
     log.debug("attempting to verify user <%s> authentication" % username)
 
     user_data = request.json_body
-    log.debug("<%s>: %s" % (type(user_data), user_data))
+    log.debug("raw_auth data: %s" % user_data)
 
     # obuscate the password so its not immediately obvious:
     # Need to convert to SSL or some other form of secure
@@ -122,10 +123,10 @@ def user_update(request):
 
     username = request.matchdict['username'].strip().lower()
 
-    log.debug("attempting to verify user <%s> authentication" % username)
+    log.debug("updating user <%s>" % username)
 
     user_data = request.json_body
-    log.debug("<%s>: %s" % (type(user_data), user_data))
+    log.debug("update data: %s" % user_data)
 
     found_user = user.get(username)
 
@@ -136,7 +137,10 @@ def user_update(request):
         except Exception as e:
             raise ValueError("The new_password not Base64 encoded: %s" % e)
 
-    user.update(**user_data)
+    with transaction.manager:
+        # Tell the library add not to handle the commit.
+        user_data['no_commit'] = True
+        user.update(**user_data)
 
     result = found_user.to_dict()
     log.debug("user <%s> updated ok." % (result['username']))
@@ -166,7 +170,24 @@ def user_get(request):
 
 
 @view_config(route_name='user', request_method='DELETE', renderer='json')
+@view_config(route_name='user-1', request_method='DELETE', renderer='json')
 def user_remove(request):
+    """Remove a user from the system.
+
+    :returns: None
+
     """
-    """
-    return {}
+    log = get_log("user_remove")
+    log.debug("here")
+
+    username = request.matchdict['username'].strip().lower()
+    log.warn("Attempting to remove user <%s>." % username)
+
+    with transaction.manager:
+        try:
+            found_user = user.get(username)
+            user.remove(found_user, no_commit=True)  # commited elsewhere.
+        except DBGetError:
+            raise userdata.UserNotFoundError("Unable to remove user <%s>" % username)
+
+    log.warn("user <%s> removed ok." % username)

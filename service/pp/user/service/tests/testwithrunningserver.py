@@ -88,19 +88,19 @@ class UserServiceTC(unittest.TestCase):
         self.assertTrue(result)
 
         # Change and test the old password is no longer valid.
+        new_plain_pw = "654321"
+
         self.us.user.update(dict(
             username="bob",
-            new_password="654321"
+            new_password=new_plain_pw
         ))
 
-        plain_pw = "123456"
         username = user['username']
         self.assertFalse(self.us.user.authenticate(username, plain_pw))
 
         # Now test that password has changed.
-        plain_pw = "654321"
         username = user['username']
-        self.assertTrue(self.us.user.authenticate(username, plain_pw))
+        self.assertTrue(self.us.user.authenticate(username, new_plain_pw))
 
     def test_user_management(self):
         """Test the REST based interface to add/remove/update users.

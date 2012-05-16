@@ -110,6 +110,9 @@ class UserManagement(object):
 
         user = userdata.creation_required_fields(user)
 
+        if "password" in user:
+            user['password'] = user['password'].encode("base64")
+
         uri = urljoin(self.base_uri, self.ADD)
         self.log.debug("add: uri <%s>" % uri)
 
@@ -117,6 +120,33 @@ class UserManagement(object):
         rc = json.loads(res.content)
 
         if rc and "status" in rc and rc['status'] == "error":
+            error = rc['error'].strip()
+            if hasattr(userdata, error):
+                # re-raise the error:
+                raise getattr(userdata, error)(rc['message'])
+            else:
+                raise SystemError("%s: %s" % (error, rc['message']))
+        else:
+            return rc
+
+    def remove(self, username):
+        """Remove an existing user from the system.
+
+        :returns: None.
+
+        """
+        self.log.debug("remove: attempting to remove user <%s>" % username)
+
+        uri = urljoin(self.base_uri, self.GET_UPDATE_OR_DELETE % dict(
+            username=username,
+        ))
+        self.log.debug("remove: uri <%s>" % uri)
+
+        res = requests.delete(uri, headers=self.JSON_CT)
+        rc = json.loads(res.content)
+
+        # If this is a dict its an error status.
+        if isinstance(rc, dict):
             error = rc['error'].strip()
             if hasattr(userdata, error):
                 # re-raise the error:

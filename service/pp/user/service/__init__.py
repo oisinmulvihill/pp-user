@@ -66,6 +66,6 @@ def main(global_config, **settings):
 
     # Should be last to catch all errors of below wsgi apps. This
     # returns useful JSON response in the body of the 500:
-    #app = restfulhelpers.JSONErrorHandler(app)
+    app = restfulhelpers.JSONErrorHandler(app)
 
     return app

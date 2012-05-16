@@ -14,6 +14,10 @@ class UserPresentError(Exception):
     """Raised when a user was attempted to be added when present."""
 
 
+class UserNotFoundError(Exception):
+    """Raised when a user is not present on the system."""
+
+
 class UserNameRequiredError(Exception):
     """Raised when a username is not present or empty."""
 
