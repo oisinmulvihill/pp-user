@@ -112,9 +112,10 @@ def creation_required_fields(data):
             )
 
     else:
-        raise PasswordRequiredError(
-            "The password field is not present"
-        )
+        if not 'password_hash' in data:
+            raise PasswordRequiredError(
+                "The password field is not present"
+            )
 
     if 'username' in data:
         if not data['username']:

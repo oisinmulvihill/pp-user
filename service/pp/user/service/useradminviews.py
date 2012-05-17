@@ -10,7 +10,7 @@ import logging
 import transaction
 from pyramid.view import view_config
 
-#from pp.auth import pwtools
+from pp.auth import pwtools
 from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 from pp.common.db.utils import DBGetError
@@ -41,7 +41,7 @@ def user_add(request):
     user_data = userdata.creation_required_fields(user_data)
 
     with transaction.manager:
-        # Tell the library add not to handle the commit.
+        # Tell the lower level library not to handle the commit.
         user_data['no_commit'] = True
         user.add(**user_data)
 
@@ -97,12 +97,12 @@ def user_auth(request):
     # transport.
     pw = user_data['password'].decode("base64")
     found_user = user.get(username)
-    result = found_user.validate_password(pw)
 
-    #result = pwtools.validate_password_hash(
-    #    hashed_pw,
-    #    found_user.password_hash
-    #)
+    log.error("\n\nSHOULD NOT BE SHOWN: user<%s> password <%s>\n\n" % (
+        found_user.to_dict(), pw
+    ))
+
+    result = found_user.validate_password(pw)
 
     log.debug("user <%s> password validated? %s" % (found_user.username, result))
 
@@ -138,7 +138,7 @@ def user_update(request):
             raise ValueError("The new_password not Base64 encoded: %s" % e)
 
     with transaction.manager:
-        # Tell the library add not to handle the commit.
+        # Tell the lower level library not to handle the commit.
         user_data['no_commit'] = True
         user.update(**user_data)
 
@@ -186,7 +186,8 @@ def user_remove(request):
     with transaction.manager:
         try:
             found_user = user.get(username)
-            user.remove(found_user, no_commit=True)  # commited elsewhere.
+            # Tell the lower level library not to handle the commit.
+            user.remove(found_user, no_commit=True)
         except DBGetError:
             raise userdata.UserNotFoundError("Unable to remove user <%s>" % username)
 

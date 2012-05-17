@@ -9,6 +9,7 @@ import unittest
 import pkg_resources
 
 from . import svrhelp
+from pp.auth import pwtools
 from pp.user.client import rest
 from pp.common.db import dbsetup
 from pp.auth.plugins.sql import user
@@ -74,16 +75,17 @@ class UserServiceTC(unittest.TestCase):
     def test_password_change(self):
         """Test changing a user's password.
         """
+        username = "bob"
+        plain_pw = "123456"
+
         user = dict(
-            username="bob",
-            password="123456",
+            username=username,
+            password_hash=pwtools.hash_password(plain_pw),
             email="bob.sprocket@example.com",
         )
 
         self.us.user.add(user)
 
-        plain_pw = "123456"
-        username = user['username']
         result = self.us.user.authenticate(username, plain_pw)
         self.assertTrue(result)
 
@@ -91,8 +93,8 @@ class UserServiceTC(unittest.TestCase):
         new_plain_pw = "654321"
 
         self.us.user.update(dict(
-            username="bob",
-            new_password=new_plain_pw
+            username=username,
+            password_hash=pwtools.hash_password(new_plain_pw),
         ))
 
         username = user['username']
@@ -107,11 +109,11 @@ class UserServiceTC(unittest.TestCase):
         """
         user = dict(
             username="bob",
-            password="123456",
+            password_hash=pwtools.hash_password("123456"),
             display_name="Bob Sprocket",
             email="bob.sprocket@example.com",
             phone="1234567890",
-            extra={},
+            #extra={},
         )
 
         bob = self.us.user.add(user)
@@ -120,11 +122,11 @@ class UserServiceTC(unittest.TestCase):
         self.assertEquals(bob['display_name'], user['display_name'])
         self.assertEquals(bob['email'], user['email'])
         self.assertEquals(bob['phone'], user['phone'])
-        self.assertEquals(bob['extra'], user['extra'])
+        #self.assertEquals(bob['extra'], user['extra'])
 
         # Check the unique user id is in the bob dict. Its value is generated
         # by the server.
-        self.assertTrue('uid' in bob)
+        self.assertTrue('id' in bob)
 
         # No plain text password is stored or sent over the wire:
         self.assertTrue('password_hash' in bob)
@@ -135,8 +137,8 @@ class UserServiceTC(unittest.TestCase):
         self.assertEquals(bob['display_name'], user['display_name'])
         self.assertEquals(bob['email'], user['email'])
         self.assertEquals(bob['phone'], user['phone'])
-        self.assertEquals(bob['extra'], user['extra'])
-        self.assertTrue('uid' in bob)
+        #self.assertEquals(bob['extra'], user['extra'])
+        self.assertTrue('id' in bob)
 
         # Check I can't add the same user a second time:
         self.assertRaises(userdata.UserPresentError, self.us.user.add, user)
@@ -148,26 +150,28 @@ class UserServiceTC(unittest.TestCase):
 
         plain_pw = "not the correct password"
         username = user['username']
-        self.assertTrue(self.us.user.authenticate(username, plain_pw))
+        self.assertFalse(self.us.user.authenticate(username, plain_pw))
 
         # Try updating all user's information that can be changed:
         user = dict(
-            username="bobby",
-            new_password="654321",
+            username=username,
+            password_hash=pwtools.hash_password("654321"),
             display_name="Sprokety Bob",
             email="bob.sprocket@example.com",
             phone="0987654321",
-            extra={"a": 1},
+            #extra={"a": 1},
         )
 
-        bob = self.us.user.update(user)
+        self.us.user.update(user)
+
+        bob = self.us.user.get(user['username'])
 
         self.assertEquals(bob['username'], user['username'])
         self.assertEquals(bob['display_name'], user['display_name'])
         self.assertEquals(bob['email'], user['email'])
         self.assertEquals(bob['phone'], user['phone'])
-        self.assertEquals(bob['extra'], user['extra'])
+        #self.assertEquals(bob['extra'], user['extra'])
 
         # Now delete the user's account from the system.
-        self.us.user.remove("bobby")
-        self.assertRaises(userdata.UserNotPresentError, self.us.user.remove, "bobby")
+        self.us.user.remove(username)
+        self.assertRaises(userdata.UserNotFoundError, self.us.user.remove, username)
