@@ -10,7 +10,7 @@ import logging
 import transaction
 from pyramid.view import view_config
 
-from pp.auth import pwtools
+#from pp.auth import pwtools
 from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 from pp.common.db.utils import DBGetError
