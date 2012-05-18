@@ -2,6 +2,9 @@
 """
 This provides the REST classes used to access the User Service.
 
+This API is not for Public consumption. It is meant for internal tools and
+service to service access.
+
 """
 import json
 import logging
