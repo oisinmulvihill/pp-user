@@ -113,7 +113,8 @@ def develop(options):
     # Figure out and set up the runtime information:
     #
     if options.develop.basket:
-        BASKET = options.develop.basket
+        # Force '-i'
+        BASKET = "-i %s" % options.develop.basket.replace("-i", "")
 
     # Use the python process or virtualenv python we maybe running under:
     python = sys.executable
