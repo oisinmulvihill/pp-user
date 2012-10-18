@@ -1,4 +1,5 @@
 .coverage
+.settings
 xunit.*
 .DS_Store*
 tmp
