@@ -36,7 +36,7 @@ source_encoding = 'utf-8'
 master_doc = 'index'
 
 # General information about the project.
-project = u'The User REST service and client library.'
+project = u'The User Service and client library.'
 
 import datetime
 year = datetime.datetime.now().date().year
