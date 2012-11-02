@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-REST Service 'pp-user-service'
+PythonPro REST Service 'pp-user-service'
 
 """
 import logging
@@ -9,20 +9,25 @@ import httplib
 from pyramid.config import Configurator
 
 from pp.web.base import restfulhelpers
-from pp.web.base import common_db_configure
 from pp.web.base import pp_auth_middleware
 
-
-def get_log():
-    return logging.getLogger("pp.user.service")
+from pp.user.model import db
 
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-    common_db_configure(settings)
+    log = logging.getLogger("{}.main".format(__name__))
 
     config = Configurator(settings=settings)
+
+    cfg = dict(
+        db_name=settings.get("mongodb.dbname", "ppusertestdb"),
+        port=int(settings.get("mongodb.port", 27017)),
+        host=settings.get("mongodb.host", "127.0.0.1"),
+    )
+    log.info("MongoDB config<{:s}>".format(cfg))
+    db.init(cfg)
 
     # Custom 404 json response handler. This returns a useful JSON
     # response in the body of the 404.
@@ -33,11 +38,22 @@ def main(global_config, **settings):
     config.add_view(not_found, context='pyramid.exceptions.NotFound')
 
     bad_request = restfulhelpers.xyz_handler(httplib.BAD_REQUEST)
-    config.add_view(bad_request,
-                    context='pyramid.httpexceptions.HTTPBadRequest')
+    config.add_view(
+        bad_request, context='pyramid.httpexceptions.HTTPBadRequest'
+    )
 
     # Maps to the status page:
     config.add_route('home', '/')
+
+    # User management
+
+    config.add_route('the_users', '/users')
+    config.add_route('the_users-1', '/users/')
+
+    config.add_route('user-auth', '/access/auth/{username}/')
+
+    config.add_route('user', '/user/{username}')
+    config.add_route('user-1', '/user/{username}/')
 
     # Testing clients for GET, PUT, POST, DELETE against out server:
     config.add_route('verb_test', '/verb/test/{id}')
