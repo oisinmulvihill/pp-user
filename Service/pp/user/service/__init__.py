@@ -45,6 +45,10 @@ def main(global_config, **settings):
     # Maps to the status page:
     config.add_route('home', '/')
 
+    # sysadmin actions
+    config.add_route('dump', '/everyone/dump/')
+    config.add_route('load', '/everyone/load/')
+
     # User management
 
     config.add_route('the_users', '/users')

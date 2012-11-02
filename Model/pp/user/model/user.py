@@ -225,6 +225,24 @@ def change_password(username, plain_pw, confirm_plain_pw, new_plain_pw):
     """
 
 
+def load(data):
+    """
+    """
+    log = get_log('load')
+    log.warn("load not implemented.")
+
+
+def dump():
+    """
+    """
+    log = get_log('dump')
+
+    log.warn("dumping all users of the system.")
+    returned = list(find())
+
+    return returned
+
+
 def count():
     """Return the number of users on the system.
 

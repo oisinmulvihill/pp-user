@@ -114,9 +114,8 @@ def dump():
         ]
 
     """
-    data_dump = []
-
-    return data_dump
+    from pp.user.model.user import dump
+    return dump()
 
 
 def load(data):
@@ -125,6 +124,8 @@ def load(data):
     :param data: See the return from a call to dump().
 
     """
+    from pp.user.model.user import load
+    return load(data)
 
 
 def init(config={}):
