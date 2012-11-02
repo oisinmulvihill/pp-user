@@ -5,7 +5,6 @@ Test the MongoDB implementation of user functionality.
 """
 import unittest
 
-from pp.common.db import utils
 from pp.auth import pwtools
 from pp.user.model import db
 from pp.user.model import user
@@ -22,6 +21,58 @@ class UserTC(unittest.TestCase):
 
         # Clear out anything that maybe left over after previous test runs:
         db.db().hard_reset()
+
+    def test_change_password(self):
+        """The the single call to change a users password.
+        """
+        import nose
+        raise nose.SkipTest("skipping over change_password test.")
+
+        username = 'bob.sprocket'
+        plain_pw = '1234567890'
+        confirm_plain_pw = '1234567890'
+        new_plain_pw = '0987654321'
+
+        self.assertEquals(user.count(), 0)
+        self.assertEquals(user.find(username=username), [])
+
+        with self.assertRaises(user.UserNotFoundError):
+            # The user isn't present to recover
+            user.change_password(
+                username,
+                plain_pw,
+                confirm_plain_pw,
+                new_plain_pw
+            )
+
+        # Add the user:
+        user_dict = dict(
+            username=username,
+            password=plain_pw,
+            display_name='Bob Sprocket',
+            email='bob.sprocket@example.com',
+        )
+        item1 = user.add(**user_dict)
+        is_valid = pwtools.validate_password(plain_pw, item1['password_hash'])
+        self.assertTrue(is_valid)
+
+        # Now change the password
+        user.change_password(
+            username,
+            plain_pw,
+            confirm_plain_pw,
+            new_plain_pw
+        )
+        item1 = user.get(username)
+
+        # old password is not valid:
+        is_valid = pwtools.validate_password(plain_pw, item1['password_hash'])
+        self.assertFalse(is_valid)
+
+        is_valid = pwtools.validate_password(
+            new_plain_pw, item1['password_hash']
+        )
+        self.assertTrue(is_valid)
 
     def testExtraField(self):
         """Test the arbitrary dic that can be used to store useful fields
@@ -51,18 +102,23 @@ class UserTC(unittest.TestCase):
 
         item2 = user.get(username)
 
-        self.assertEquals(item2.username, user_dict['username'])
-        self.assertEquals(item2.display_name, user_dict['display_name'])
-        self.assertTrue(item2.validate_password(plain_pw))
-        self.assertFalse(item2.validate_password("not the right one"))
-        self.assertEquals(item2.email, user_dict['email'])
-        self.assertEquals(item2.phone, user_dict['phone'])
-        self.assertEquals(item2.extra, {})
+        self.assertEquals(item2['username'], user_dict['username'])
+        self.assertEquals(item2['display_name'], user_dict['display_name'])
+        is_validate = pwtools.validate_password(
+            plain_pw, item1['password_hash']
+        )
+        self.assertTrue(is_validate)
+        is_validate = pwtools.validate_password(
+            "not the right one", item1['password_hash']
+        )
+        self.assertFalse(is_validate)
+        self.assertEquals(item2['email'], user_dict['email'])
+        self.assertEquals(item2['phone'], user_dict['phone'])
 
         # Now update all the user fields that can be changed
         # and add some extra data to the arbitrary fields:
         #
-        freeform_data = dict(
+        oauth_tokens = dict(
             # Some pretend googleservice oauth data:
             googleauth=dict(
                 request_token="1234567890",
@@ -71,23 +127,39 @@ class UserTC(unittest.TestCase):
 
         user_dict = dict(
             username=username,
-            password_hash=pwtools.hash_password("ifidexmemwb"),
+            # change the password. new_password will be hashed and
+            # its has stored as password_hash:
+            new_password="ifidexmemwb",
             display_name='Bobby',
             email='bob@example.net',
             phone='12121212',
-            extra=freeform_data,
+            oauth_tokens=oauth_tokens,
+            cats='big',
+            teatime=1,
         )
 
         user.update(**user_dict)
         item2 = user.get(username)
 
-        self.assertEquals(item2.username, user_dict['username'])
-        self.assertEquals(item2.display_name, user_dict['display_name'])
-        self.assertTrue(item2.validate_password("ifidexmemwb"))
-        self.assertFalse(item2.validate_password("not the right one"))
-        self.assertEquals(item2.email, user_dict['email'])
-        self.assertEquals(item2.phone, user_dict['phone'])
-        self.assertEquals(item2.extra, freeform_data)
+        self.assertEquals(item2['username'], user_dict['username'])
+        self.assertEquals(item2['display_name'], user_dict['display_name'])
+        is_validate = pwtools.validate_password(
+            "ifidexmemwb", item2['password_hash']
+        )
+        self.assertTrue(is_validate)
+        is_validate = pwtools.validate_password(
+            plain_pw, item2['password_hash']
+        )
+        self.assertFalse(is_validate)
+        is_validate = pwtools.validate_password(
+            "not the right one", item1['password_hash']
+        )
+        self.assertFalse(is_validate)
+        self.assertEquals(item2['email'], user_dict['email'])
+        self.assertEquals(item2['phone'], user_dict['phone'])
+        self.assertEquals(item2['oauth_tokens'], oauth_tokens)
+        self.assertEquals(item2['cats'], 'big')
+        self.assertEquals(item2['teatime'], 1)
 
     def test_unicode_fields(self):
         """Test the entry of unicode username, email, display name.
@@ -109,24 +181,25 @@ class UserTC(unittest.TestCase):
         item1 = user.add(**user_dict)
 
         # Check the password is converted into a hashed password correctly:
-        is_validate = item1.validate_password(plain_pw)
+        is_validate = pwtools.validate_password(
+            plain_pw, item1['password_hash']
+        )
         self.assertTrue(is_validate)
 
         # Try recoving by username, display_name, etc
         #
         for field in user_dict:
             if field == "password":
-                # skip and no such thing as find via password although by
-                # hash should in theory work.
+                # skip, no such thing as find via password.
                 continue
 
             items = user.find(**{field: user_dict[field]})
             self.assertEquals(items, [item1])
             item1 = items[0]
-            self.assertEquals(item1.username, user_dict['username'])
-            self.assertEquals(item1.display_name, user_dict['display_name'])
-            self.assertEquals(item1.email, user_dict['email'])
-            self.assertEquals(item1.phone, user_dict['phone'])
+            self.assertEquals(item1['username'], user_dict['username'])
+            self.assertEquals(item1['display_name'], user_dict['display_name'])
+            self.assertEquals(item1['email'], user_dict['email'])
+            self.assertEquals(item1['phone'], user_dict['phone'])
 
     def testBasicCRUD(self):
         """Test the basic add and get method

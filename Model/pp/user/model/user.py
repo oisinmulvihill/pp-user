@@ -25,11 +25,11 @@ def has(username):
     returned = False
     log = get_log("has")
 
-    log.debug("looking for <{}>".format(username))
+    log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()
 
     if conn.find_one(dict(username=username)):
-        log.debug("has: looking for <{}>".format(username))
+        log.debug("has: found <{!r}>".format(username))
         returned = True
 
     return returned
@@ -51,15 +51,13 @@ def get(username):
     """
     log = get_log("get")
 
-    log.debug("looking for <{}>".format(username))
+    log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()
 
     returned = conn.find_one(dict(username=username))
     if not returned:
-        log.error("user not found for <{}>".format(username))
-        raise UserNotFoundError("Unknown username <{}>".format(username))
-
-    print "returned: <{}>".format(returned)
+        log.error("user not found for <{!r}>".format(username))
+        raise UserNotFoundError("Unknown username <{!r}>".format(username))
 
     return returned
 
@@ -72,7 +70,7 @@ def find(**kwargs):
     """
     log = get_log("find")
 
-    log.debug("looking users with criteria <{}>".format(kwargs))
+    log.debug("looking users with criteria <{!r}>".format(kwargs))
     conn = db.db().conn()
 
     returned = list(conn.find(kwargs))
@@ -98,11 +96,11 @@ def remove(username):
 
     if not conn.find_one(u):
         raise UserRemoveError(
-            "The user '{}' is not present to remove.".format(username)
+            "The user '{!r}' is not present to remove.".format(username)
         )
 
     conn.remove(u)
-    log.debug("'{}' removed OK.".format(username))
+    log.debug("'{!r}' removed OK.".format(username))
 
 
 class UserPresentError(Exception):
@@ -126,12 +124,14 @@ def add(**user):
     """
     log = get_log('add')
 
-    log.debug("Given user <{}> to add.".format(user))
     username = user['username']
+    log.debug("Given user <{!r}> to add.".format(username))
 
     if has(username):
         raise UserPresentError(
-            "The username <{}> is present & cannot be added.".format(username)
+            "The username <{!r}> is present & cannot be added.".format(
+                username
+            )
         )
 
     if "password" not in user and "password_hash" not in user:
@@ -148,12 +148,14 @@ def add(**user):
     if "_id" not in user:
         user['_id'] = db.doc_id_for('user')
 
-    log.debug("The username <{}> is not present. OK to add.".format(username))
+    log.debug(
+        "The username <{!r}> is not present. OK to add.".format(username)
+    )
 
     conn = db.db().conn()
     conn.insert(user)
 
-    log.debug("The user <{}> was added OK.".format(username))
+    log.debug("The user <{!r}> was added OK.".format(username))
 
     return get(username)
 
@@ -168,57 +170,59 @@ def update(**user):
     """
     log = get_log('update')
 
-    log.debug("Given user <{}> to update.".format(user))
-
-    update_data = {}
-
     # Make sure the user if present before attempting to add.
     current = get(user['username'])
+
+    log.debug("Given user <{!r}> to update.".format(user['username']))
 
     if "new_password" in user:
         new_password = user['new_password']
         user.pop('new_password')
         # Set the new password hash to store, replacing the current one:
         new_password = pwtools.hash_password(new_password)
-        update_data['password_hash'] = new_password
-
-    if "display_name" in user:
-        update_data['display_name'] = user['display_name']
+        current['password_hash'] = new_password
 
     if "new_username" in user:
         new_username = user['new_username']
+        user.pop('new_username')
         if not has(user['new_username']):
-            update_data['username'] = new_username
+            current['username'] = new_username
         else:
             raise UserPresentError(
-                "Cannot rename to username <%s> as it is used." % new_username
+                "Cannot rename to username <{!r}> as it is used.".format(
+                    new_username
+                )
             )
 
-    if "password_hash" in user:
-        update_data['password_hash'] = user['password_hash']
-
-    if "email" in user:
-        update_data['email'] = user['email']
-
-    if "phone" in user:
-        update_data['phone'] = user['phone']
-
-    log.debug("update_data: <{}>".format(update_data))
-
-    _id = current['_id']
-
     # update current with the date preserving the db id:
-    current.update(update_data)
-    current['_id'] = _id
+    _id = current['_id']
+    for key in user:
+        current[key] = user[key]
+    else:
+        current['_id'] = _id
 
-    log.debug("updated current instance to save: <{}>".format(current))
+    # log.debug(
+    #     "updated current instance to save:\n\n <{!r}>\n\n\n".format(current)
+    # )
     conn = db.db().conn()
     conn.save(current)
 
-    log.debug("<%s> updated OK." % user['username'])
+    log.debug("<{!r}> updated OK.".format(user['username']))
 
     # Return the updated user details:
     return get(user['username'])
+
+
+def change_password(username, plain_pw, confirm_plain_pw, new_plain_pw):
+    """Change a user's password in a single step.
+
+    :param username: The user's unique username.
+
+    :param plain_pw: The user's current password in plain text.
+
+    :param confirm_plain_pw: The user's current password in plain text.
+
+    """
 
 
 def count():
