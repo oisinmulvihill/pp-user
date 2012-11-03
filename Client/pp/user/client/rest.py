@@ -253,8 +253,8 @@ class UserService(object):
 
         """
         self.log = get_log("UserService")
-        self.uri = uri
-        self.user = UserManagement(self.uri)
+        self.base_uri = uri
+        self.user = UserManagement(self.base_uri)
 
     def ping(self):
         """Recover the User Service status page.
@@ -264,7 +264,7 @@ class UserService(object):
         :returns: service status dict.
 
         """
-        res = requests.get(self.uri)
+        res = requests.get(self.base_uri)
         res.raise_for_status()
         return json.loads(res.content)
 
