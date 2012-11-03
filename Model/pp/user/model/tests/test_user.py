@@ -22,6 +22,64 @@ class UserTC(unittest.TestCase):
         # Clear out anything that maybe left over after previous test runs:
         db.db().hard_reset()
 
+    def test_dump_and_load(self):
+        """Test the dump and loading of the user 'universe'.
+        """
+        self.assertEquals(user.count(), 0)
+        self.assertEquals(user.dump(), [])
+
+        username = u'andrés.bolívar'
+        display_name = u'Andrés Plácido Bolívar'
+        email = u'andrés.bolívar@example.com'
+
+        data = [
+            {
+                "username": "bob.sprocket",
+                "oauth_tokens": {
+                    "googleauth": {
+                        "request_token": "1234567890"
+                    }
+                },
+                "display_name": "Bobby",
+                "phone": "12121212",
+                "cats": "big",
+                "teatime": 1,
+                "_id": "user-2719963b00964c01b42b5d81c998fd05",
+                "email": "bob@example.net",
+                "password_hash": pwtools.hash_password('11amcoke')
+            },
+            {
+                "username": username.encode('utf-8'),
+                "display_name": display_name.encode('utf-8'),
+                "phone": "",
+                "_id": "user-38ed1d2903344702b30bb951916aaf1c",
+                "email": email.encode('utf-8'),
+                "password_hash": pwtools.hash_password('$admintime$')
+            }
+        ]
+
+        user.load(data)
+
+        self.assertEquals(user.count(), 2)
+
+        item2 = user.get('bob.sprocket')
+        user_dict = data[0]
+        self.assertEquals(item2['username'], user_dict['username'])
+        self.assertEquals(item2['display_name'], user_dict['display_name'])
+        self.assertEquals(item2['email'], user_dict['email'])
+        self.assertEquals(item2['phone'], user_dict['phone'])
+        self.assertEquals(item2['oauth_tokens'], user_dict['oauth_tokens'])
+        self.assertEquals(item2['cats'], 'big')
+        self.assertEquals(item2['teatime'], 1)
+
+        # Test the unicode name as still good:
+        item1 = user.get(username)
+        user_dict = data[1]
+        self.assertEquals(item1['username'], username)
+        self.assertEquals(item1['display_name'], display_name)
+        self.assertEquals(item1['email'], email)
+        self.assertEquals(item1['phone'], user_dict['phone'])
+
     def test_change_password(self):
         """The the single call to change a users password.
         """

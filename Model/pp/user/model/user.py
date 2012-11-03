@@ -51,6 +51,9 @@ def get(username):
     """
     log = get_log("get")
 
+    if isinstance(username, unicode):
+        username  = username.encode('utf-8')
+
     log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()
 
@@ -226,14 +229,16 @@ def change_password(username, plain_pw, confirm_plain_pw, new_plain_pw):
 
 
 def load(data):
-    """
+    """Load all users into the system.
     """
     log = get_log('load')
-    log.warn("load not implemented.")
+    conn = db.db().conn()
+    log.warn("loading '{}' users.".format(len(data)))
+    conn.insert(data)
 
 
 def dump():
-    """
+    """Dump all users to a list ready for backup.
     """
     log = get_log('dump')
 
