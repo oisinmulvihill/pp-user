@@ -46,8 +46,8 @@ def main(global_config, **settings):
     config.add_route('home', '/')
 
     # sysadmin actions
-    config.add_route('dump', '/everyone/dump/')
-    config.add_route('load', '/everyone/load/')
+    config.add_route('dump', '/usiverse/dump/')
+    config.add_route('load', '/usiverse/load/')
 
     # User management
 
