@@ -50,7 +50,6 @@ EagerResources = [
 
 # Example including shell script out of scripts dir
 ProjectScripts = [
-#    'pp.user.service/scripts/somescript',
 ]
 
 PackageData = {
@@ -59,9 +58,6 @@ PackageData = {
 
 # Web Entry points
 EntryPoints = """
-[console_scripts]
-    userservice-admin = pp.user.service.scripts.main:main
-
 [paste.app_factory]
     main = pp.user.service:main
 """
@@ -76,10 +72,10 @@ setup(
     description=ShortDescription,
     long_description=Description,
     classifiers=[
-      "Programming Language :: Python",
-      "Framework :: Pylons",
-      "Topic :: Internet :: WWW/HTTP",
-      "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+        "Programming Language :: Python",
+        "Framework :: Pylons",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
     ],
     keywords='web wsgi bfg pylons pyramid',
     license=License,

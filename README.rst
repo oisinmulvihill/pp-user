@@ -1,9 +1,5 @@
-pp-user-service
-===============
-
-This provides the User Service to authenticate and recover metadata about
-people stored. This repository provides two egg packages. The REST service and
-client packages.
+{project}
+==========================
 
 For more information see the sphinx documentation.
 
@@ -28,9 +24,6 @@ Running all tests
 The runtests.py is used for this and is called as follows::
 
     python runtests.py -sc nose.cfg
- 
-    # with coverage of pp.user namespace:
-    python runtests.py -sc nose.cfg --with-coverage --cover-package pp.user
 
 The nose.cfg configures the locations of the egg packages to test.
 

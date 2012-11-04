@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+        # -*- coding: utf-8 -*-
 """
-Setuptools script for pp-user-client (pp.user.client)
+Setuptools script for pp-user-model (pp.user.model)
 
 """
 
@@ -22,13 +22,14 @@ else:
     with file("cached_version.json", "w") as fd:
         fd.write(json.dumps(dict(egg_version=version)))
 
-Name = 'pp-user-client'
+
+Name = 'pp-user-model'
 ProjectUrl = ""
 Version = version
 Author = ''
 AuthorEmail = 'everyone at pythonpro dot co dot uk'
 Maintainer = ''
-Summary = ' pp-user-client '
+Summary = ' pp-user-model '
 License = ''
 Description = Summary
 ShortDescription = Summary
@@ -43,7 +44,7 @@ needed = [
 test_needed = [
 ]
 
-test_suite = 'pp.user.client.tests'
+test_suite = 'pp.user.model.tests'
 
 EagerResources = [
     'pp',

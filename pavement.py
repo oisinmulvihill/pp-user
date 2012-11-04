@@ -30,10 +30,13 @@ if BASKET:
     sys.stdout.write("Using Environment BASKET '%s'." % BASKET)
 
 
-SERVICEDIR = path(os.path.abspath(os.path.join(CWD, "service")))
+SERVICEDIR = path(os.path.abspath(os.path.join(CWD, "Service")))
 
-CLIENTDIR = path(os.path.abspath(os.path.join(CWD, "client")))
-VALIDATEDIR = path(os.path.abspath(os.path.join(CWD, "validate")))
+CLIENTDIR = path(os.path.abspath(os.path.join(CWD, "Client")))
+
+VALIDATEDIR = path(os.path.abspath(os.path.join(CWD, "Validate")))
+
+MODELDIR = path(os.path.abspath(os.path.join(CWD, "Model")))
 
 
 # Paver global options we'll add to:
@@ -54,6 +57,7 @@ easy.options(
     ),
 
     DEV_PKGS_IN_DEP_ORDER=[
+        MODELDIR,
         SERVICEDIR,
         CLIENTDIR,
         VALIDATEDIR,
@@ -128,6 +132,10 @@ def develop(options):
         easy.info("-- Setting up %s in development mode --" % dev_pkg)
 
         # Set up the the package in development mode:
+        easy.info("Setting up '{0}': (BASKET:'{1}') ".format(
+            dev_pkg,
+            BASKET
+        ))
         stdout = easy.sh("{python} setup.py develop {BASKET} ".format(
                 python=python,
                 BASKET=BASKET

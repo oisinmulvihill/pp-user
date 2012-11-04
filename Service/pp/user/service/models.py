@@ -11,12 +11,7 @@ import logging
 def get_log(fn=''):
     if fn and fn.strip():
         fn = ".%s" % fn
-    return logging.getLogger('pp.user.service.models%s' % fn)
-
-
-
-
-
+    return logging.getLogger('%s%s' % (__name__, fn))
 
 #import transaction
 # from sqlalchemy import Column
@@ -29,7 +24,7 @@ def get_log(fn=''):
 # from zope.sqlalchemy import ZopeTransactionExtension
 
 
-# DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+#DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 # Base = declarative_base()
 
 

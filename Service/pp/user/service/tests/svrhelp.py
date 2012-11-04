@@ -20,7 +20,7 @@ from pp.web.base import common_db_configure
 
 
 def get_log():
-    return logging.getLogger("pp.bookingsys.frontend.tests.svrhelp")
+    return logging.getLogger(__name__)
 
 
 class ServerRunner(object):
@@ -45,7 +45,9 @@ class ServerRunner(object):
         self.URI = "http://%s:%s" % (self.host, self.port)
 
         # Set up the plain auth files the test server will use:
-        auth_dir = os.path.abspath(os.path.join(pp.web.base.__path__[0], "../../../auth"))
+        auth_dir = os.path.abspath(
+            os.path.join(pp.web.base.__path__[0], "../../../auth")
+        )
         self.log.info("pp.web.base auth dir to copy: <%s>" % auth_dir)
 
         # Make directory to put file and other data into:
@@ -53,7 +55,8 @@ class ServerRunner(object):
         self.log.info("Test Server temp directory <%s>" % self.test_dir)
 
         # copy in test dir:
-        # not very cross platform, but hey I'll worry about windows late (if ever):
+        # not very cross platform, but hey I'll worry about windows late
+        # (if ever):
         os.system("cp -r %s %s" % (auth_dir, self.test_dir))
 
         # Get template in the tests dir:
@@ -87,11 +90,14 @@ class ServerRunner(object):
             try:
                 os.remove(f)
             except OSError:
-                os.system("rm %f" % f)
+#                os.system("rm %f" % f)
+# Gives error: "TypeError: float argument required, not str"
+                os.system('rm {}'.format(f))
         try:
             os.removedirs(self.test_dir)
         except OSError:
-            os.system("rm -rf %f" % self.test_dir)
+#            os.system("rm -rf %f" % self.test_dir)
+            os.system('rm -rf {}'.format(self.test_dir))
 
     def start(self):
         """Spawn the web app in testserver mode.
@@ -100,7 +106,9 @@ class ServerRunner(object):
         for the web app to respond to normal requests.
 
         """
-        self.log.info("start: running <%s> in <%s>." % (self.cmd, self.test_dir))
+        self.log.info("start: running <%s> in <%s>." % (
+            self.cmd, self.test_dir
+        ))
 
         # Spawn as a process and then wait until
         # the web server is ready to accept requests.

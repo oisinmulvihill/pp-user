@@ -57,6 +57,9 @@ PackageData = {
 }
 
 EntryPoints = {
+    'console_scripts': [
+        '{name}-admin = pp.user.client.admintool:main',
+    ],
 }
 
 

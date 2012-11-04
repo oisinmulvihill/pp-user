@@ -1,5 +1,5 @@
 Welcome to pp-user-service documentation!
-=========================================
+=============================================
 
 Contents:
 
@@ -10,8 +10,10 @@ Contents:
 Quick start
 -----------
 
-The paver pavement.py allows the repo to appear as one python project. I
-implement the different commands for the contained egg packages.
+The pp-user REST service repository checkout contains multiple parts that
+get built into eggs. Paver is used to make it appear as one "egg" from the top
+level. This mean setup.py develop | bdist_egg and other commands can be used.
+All contained parts will then have the command run on them.
 
 For example, to set up all contained eggs in development mode::
 
@@ -21,30 +23,106 @@ For example, to set up all contained eggs in development mode::
 Run the server
 ~~~~~~~~~~~~~~
 
-Run the server using the default development.ini do::
+Run the server using the default "development.ini" do::
 
-    python setup.py develop
+    python setup.py runserver
 
-
-service
--------
-
-The REST service which provides user identity and management.
-
-pp.user.service
+Behind the scenes this will changed into the Service directory. It will then
+run "pserver --reload development.ini". The default port for the service is
+"60706" and you can go to "http://localhost:60706" in your
+browser and see the top level status page.
 
 
-userservice-admin
-~~~~~~~~~~~~~~~~~
+Project Parts
+-------------
 
-The command line tool to manage the user service. It can add / remove users.
+docs
+~~~~
 
-client
-------
+The project containing the sphinx documentation for all contained project
+parts. The documentation can be built using paver from the top level of the
+project.
 
-The REST client which talks to the REST service.
+From a development checkout you can do the following::
 
-pp.user.client
+    $python setup.py  docs
+    ---> pavement.docs
+    make html
+    sphinx-build -b html -d build/doctrees   source build/html
+    Running Sphinx v1.1.3
+    loading pickled environment... done
+    building [html]: targets for 1 source files that are out of date
+    updating environment: 0 added, 1 changed, 0 removed
+    reading sources... [100%] index
+    :
+    etc
+    :
+    Build finished. The HTML pages are in build/html.
+
+    You can now open the index.html in your browser:
+
+        docs/build/html/index.html
+
+    $
+
+You can then run the command to open the newly built docs in Firefox::
+
+    firefox docs/build/html/index.html
+
+
+Model
+~~~~~
+
+This part provides the business logic and core code behind the user
+project. This delivers the namespace "pp.user.model" into the
+environment. The Service builds on this to provide the REST API.
+
+
+Service
+~~~~~~~
+
+This part provides the Pyramid REST Service egg. This delivers the namespace
+"pp.user.service" into the environment. You can run the development
+version of the service using paver, as stated in the quick start, or from the
+Service directory directly.
+
+For example::
+
+    cd Service
+    pserver development.ini
+
+
+Client
+~~~~~~
+
+This part provides the python client library the consumes the REST API,
+provided by the Service. This delivers the namespace "pp.user.client"
+into the environment.
+
+A quick test of the client library against a running service is::
+
+    from pp.user.client.rest import UserService
+
+    # If the URL of the service is not provide localhost:60706 is used
+    # by default.
+    #
+    lps = UserService("http://localhost:60706")
+
+    lps.ping()
+    >>> {u'status': u'ok', u'version': u'1.0.0dev', u'name': u'pp-user-service'}
+
+    # Success!
+
+
+Tools
+-----
+
+user-admin
+~~~~~~~~~~~~~~~
+
+The Client egg also sets up the user-admin command line admin tool. This
+is used to perform various adminstration activities on a running Service. It
+consumes the REST client library to perform its actions.
 
 
 

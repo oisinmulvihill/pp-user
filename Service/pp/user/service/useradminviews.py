@@ -7,20 +7,15 @@ PythonPro Limited
 """
 import logging
 
-import transaction
 from pyramid.view import view_config
 
-#from pp.auth import pwtools
-from pp.auth.plugins.sql import user
+from pp.auth import pwtools
+from pp.user.model import user
 from pp.user.validate import userdata
-from pp.common.db.utils import DBGetError
 
 
 def get_log(extra=None):
-    m = "pp.user.client.rest"
-    if extra:
-        if isinstance(extra, basestring):
-            m = "%s.%s" % (m, extra)
+    m = "{}.{}".format(__name__, extra) if extra else __name__
     return logging.getLogger(m)
 
 
@@ -36,16 +31,13 @@ def user_add(request):
     log = get_log("user_add")
 
     user_data = request.json_body
-    log.debug("Validating new user<%s>: %s" % (type(user_data), user_data))
+    log.debug(
+        "Validating new user<{}>: {!r}".format(type(user_data), user_data)
+    )
 
     user_data = userdata.creation_required_fields(user_data)
 
-    with transaction.manager:
-        # Tell the lower level library not to handle the commit.
-        user_data['no_commit'] = True
-        user.add(**user_data)
-
-    rc = user.get(user_data['username']).to_dict()
+    rc = user.add(**user_data)
 
     return rc
 
@@ -62,9 +54,9 @@ def the_users(request):
 
     log.debug("recovering all users on the system")
 
-    the_users = [u.to_dict() for u in user.find()]
+    the_users = [u for u in user.find()]
 
-    log.debug("Returning all %d user(s)." % len(the_users))
+    log.debug("Returning all '{}' user(s).".format(len(the_users)))
 
     return the_users
 
@@ -83,14 +75,14 @@ def user_auth(request):
     """
     log = get_log("user_auth")
 
-    log.debug("user_auth: here")
-
     username = request.matchdict['username'].strip().lower()
 
-    log.debug("attempting to verify user <%s> authentication" % username)
+    log.debug(
+        "attempting to verify user <{!r}> authentication".format(username)
+    )
 
     user_data = request.json_body
-    log.debug("raw_auth data: %s" % user_data)
+    log.debug("raw_auth data: {!r}".format(user_data))
 
     # obuscate the password so its not immediately obvious:
     # Need to convert to SSL or some other form of secure
@@ -98,13 +90,17 @@ def user_auth(request):
     pw = user_data['password'].decode("base64")
     found_user = user.get(username)
 
-    log.error("\n\nSHOULD NOT BE SHOWN: user<%s> password <%s>\n\n" % (
-        found_user.to_dict(), pw
+    # log.error("\n\nSHOULD NOT BE SHOWN: user<%s> password <%s>\n\n" % (
+    #     found_user.to_dict(), pw
+    # ))
+
+    result = pwtools.validate_password(
+        pw, found_user['password_hash']
+    )
+
+    log.debug("user <{!r}> password validated? {}".format(
+        found_user['username'], result
     ))
-
-    result = found_user.validate_password(pw)
-
-    log.debug("user <%s> password validated? %s" % (found_user.username, result))
 
     return result
 
@@ -119,31 +115,23 @@ def user_update(request):
     """
     log = get_log("user_update")
 
-    log.debug("here")
-
     username = request.matchdict['username'].strip().lower()
 
-    log.debug("updating user <%s>" % username)
+    log.debug("updating user <{!r}>".format(username))
 
     user_data = request.json_body
-    log.debug("update data: %s" % user_data)
-
-    found_user = user.get(username)
 
     # un-obuscate the new password, not ideal!
     if "new_password" in user_data:
         try:
-            user_data["new_password"] = user_data["new_password"].decode("base64")
+            decoded = user_data["new_password"].decode("base64")
+            user_data["new_password"] = decoded
         except Exception as e:
             raise ValueError("The new_password not Base64 encoded: %s" % e)
 
-    with transaction.manager:
-        # Tell the lower level library not to handle the commit.
-        user_data['no_commit'] = True
-        user.update(**user_data)
+    result = user.update(**user_data)
 
-    result = found_user.to_dict()
-    log.debug("user <%s> updated ok." % (result['username']))
+    log.debug("user <{!r}> updated ok.".format(result['username']))
 
     return result
 
@@ -157,14 +145,12 @@ def user_get(request):
 
     """
     log = get_log("user_get")
-    log.debug("here")
 
     username = request.matchdict['username'].strip().lower()
-    log.debug("attempting to recover <%s>" % username)
+    log.debug("attempting to recover <{!r}>".format(username))
 
-    found_user = user.get(username)
-    result = found_user.to_dict()
-    log.debug("user <%s> recovered ok." % (result['username']))
+    result = user.get(username)
+    log.debug("user <{!r}> recovered ok.".format((result['username'])))
 
     return result
 
@@ -181,14 +167,8 @@ def user_remove(request):
     log.debug("here")
 
     username = request.matchdict['username'].strip().lower()
-    log.warn("Attempting to remove user <%s>." % username)
+    log.warn("Attempting to remove user <{!r}>.".format(username))
 
-    with transaction.manager:
-        try:
-            found_user = user.get(username)
-            # Tell the lower level library not to handle the commit.
-            user.remove(found_user, no_commit=True)
-        except DBGetError:
-            raise userdata.UserNotFoundError("Unable to remove user <%s>" % username)
+    user.remove(username)
 
-    log.warn("user <%s> removed ok." % username)
+    log.warn("user <{!r}> removed ok.".format(username))
