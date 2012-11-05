@@ -15,6 +15,7 @@ from string import Template
 from pkg_resources import resource_string
 
 import pp.web.base
+from pp.user.model import db
 from evasion.common import net
 from pp.web.base import common_db_configure
 
@@ -54,6 +55,19 @@ class ServerRunner(object):
         self.test_dir = tempfile.mkdtemp()
         self.log.info("Test Server temp directory <%s>" % self.test_dir)
 
+        self.mongodb_dbname = "uat-user-db"
+        #postfix = str(uuid.uuid4()).replace("-", "")
+        #self.mongodb_dbname = "testing-{:s}".format(postfix)
+        self.log.info("Test Server mongodb_dbname <{}>".format(
+            self.mongodb_dbname
+        ))
+
+        # Set up the mongodb connection:
+        self.log.info("db.init Mongodb name <{}>".format(self.mongodb_dbname))
+        db.init(dict(db_name=self.mongodb_dbname))
+
+        db.db().hard_reset()
+
         # copy in test dir:
         # not very cross platform, but hey I'll worry about windows late
         # (if ever):
@@ -69,6 +83,7 @@ class ServerRunner(object):
             host=self.host,
             port=self.port,
             path_and_db=self.temp_db,
+            mongodb_dbname=self.mongodb_dbname,
         )
         with open(self.temp_config, "wb") as fd:
             fd.write(data)
@@ -78,10 +93,10 @@ class ServerRunner(object):
         config = ConfigParser.ConfigParser(dict(here=self.test_dir))
         self.log.info("Setting up common db from <%s>" % self.temp_config)
         config.read(self.temp_config)
-        common_db_configure(
-            settings=dict(config.items("app:main")),
-            use_transaction=False
-        )
+        # common_db_configure(
+        #     settings=dict(config.items("app:main")),
+        #     use_transaction=False
+        # )
 
     def cleanup(self):
         """Clean up temp files and directories.
@@ -90,13 +105,10 @@ class ServerRunner(object):
             try:
                 os.remove(f)
             except OSError:
-#                os.system("rm %f" % f)
-# Gives error: "TypeError: float argument required, not str"
                 os.system('rm {}'.format(f))
         try:
             os.removedirs(self.test_dir)
         except OSError:
-#            os.system("rm -rf %f" % self.test_dir)
             os.system('rm -rf {}'.format(self.test_dir))
 
     def start(self):
@@ -142,7 +154,7 @@ class ServerRunner(object):
         # Make sure its actually stopped:
         if sys.platform.startswith('linux'):
             subprocess.call(
-                args="pkill 'paster'",
+                args="pkill paster",
                 shell=True,
             )
         elif sys.platform.startswith('win'):
@@ -157,7 +169,7 @@ class ServerRunner(object):
             )
         else:
             subprocess.call(
-                args="pskill 'paster'",
+                args="pkill paster",
                 shell=True,
             )
 

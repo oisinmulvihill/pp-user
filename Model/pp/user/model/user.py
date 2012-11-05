@@ -8,6 +8,7 @@ import logging
 
 from pp.auth import pwtools
 from pp.user.model import db
+from pp.user.validate.error import UserNotFoundError
 
 
 def get_log(fn=''):
@@ -35,10 +36,6 @@ def has(username):
     return returned
 
 
-class UserNotFoundError(Exception):
-    """Raised when a user was not found."""
-
-
 def get(username):
     """Recover the detail of a user on the system.
 
@@ -52,7 +49,7 @@ def get(username):
     log = get_log("get")
 
     if isinstance(username, unicode):
-        username  = username.encode('utf-8')
+        username = username.encode('utf-8')
 
     log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()

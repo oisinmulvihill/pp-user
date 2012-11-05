@@ -10,9 +10,8 @@ import pkg_resources
 
 from . import svrhelp
 from pp.auth import pwtools
+from pp.user.model import db
 from pp.user.client import rest
-from pp.common.db import dbsetup
-from pp.auth.plugins.sql import user
 from pp.user.validate import userdata
 
 
@@ -20,8 +19,6 @@ from pp.user.validate import userdata
 #
 def setup_module():
     svrhelp.setup_module()
-    # Create the db now the server is running in its own dir.
-    dbsetup.create()
 
 teardown_module = svrhelp.teardown_module
 
@@ -30,9 +27,7 @@ class UserServiceTC(unittest.TestCase):
 
     def setUp(self):
         self.us = rest.UserService(svrhelp.webapp.URI)
-
-        for u in user.find():
-            user.remove(u.id)
+        db.db().hard_reset()
 
     def testRestClientPing(self):
         """Test the rest client's ping of the user service.
@@ -126,7 +121,7 @@ class UserServiceTC(unittest.TestCase):
 
         # Check the unique user id is in the bob dict. Its value is generated
         # by the server.
-        self.assertTrue('id' in bob)
+        self.assertTrue('_id' in bob)
 
         # No plain text password is stored or sent over the wire:
         self.assertTrue('password_hash' in bob)
@@ -138,7 +133,7 @@ class UserServiceTC(unittest.TestCase):
         self.assertEquals(bob['email'], user['email'])
         self.assertEquals(bob['phone'], user['phone'])
         #self.assertEquals(bob['extra'], user['extra'])
-        self.assertTrue('id' in bob)
+        self.assertTrue('_id' in bob)
 
         # Check I can't add the same user a second time:
         self.assertRaises(userdata.UserPresentError, self.us.user.add, user)
@@ -174,4 +169,6 @@ class UserServiceTC(unittest.TestCase):
 
         # Now delete the user's account from the system.
         self.us.user.remove(username)
-        self.assertRaises(userdata.UserNotFoundError, self.us.user.remove, username)
+        self.assertRaises(
+            userdata.UserNotFoundError, self.us.user.remove, username
+        )

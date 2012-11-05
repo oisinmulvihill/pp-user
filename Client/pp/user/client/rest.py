@@ -125,7 +125,9 @@ class UserManagement(object):
                 # re-raise the error:
                 raise getattr(userdata, error)(rc['message'])
             else:
-                raise SystemError("%s: %s" % (error, rc['message']))
+                raise userdata.UserNotFoundError(
+                    "{}: {}".format(error, rc['message'])
+                )
         else:
             return rc
 
