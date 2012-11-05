@@ -96,7 +96,7 @@ class UserManagement(object):
                 # re-raise the error:
                 raise getattr(userdata, error)(rc['message'])
             else:
-                raise SystemError("%s: %s" % (error, rc['message']))
+                raise error.UserRemoveError("%s: %s" % (error, rc['message']))
         else:
             return rc
 

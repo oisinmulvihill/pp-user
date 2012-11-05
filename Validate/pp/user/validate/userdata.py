@@ -14,6 +14,10 @@ class UserPresentError(Exception):
     """Raised when a user was attempted to be added when present."""
 
 
+class UserRemoveError(Exception):
+    """Raised when a user could not be removed."""
+
+
 class UserNotFoundError(Exception):
     """Raised when a user is not present on the system."""
 

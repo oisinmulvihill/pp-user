@@ -44,6 +44,64 @@ class UserServiceTC(unittest.TestCase):
         self.assertEquals(report['name'], 'pp-user-service')
         self.assertEquals(report['version'], pkg.version)
 
+    def testUserLoadingAndDumping(self):
+        """Test the rest client's ping of the user service.
+        """
+        self.assertEquals(len(self.us.user.all()), 0)
+        self.assertEquals(self.us.dump(), [])
+
+        username = u'andrés.bolívar'
+        display_name = u'Andrés Plácido Bolívar'
+        email = u'andrés.bolívar@example.com'
+
+        data = [
+            {
+                "username": "bob.sprocket",
+                "oauth_tokens": {
+                    "googleauth": {
+                        "request_token": "1234567890"
+                    }
+                },
+                "display_name": "Bobby",
+                "phone": "12121212",
+                "cats": "big",
+                "teatime": 1,
+                "_id": "user-2719963b00964c01b42b5d81c998fd05",
+                "email": "bob@example.net",
+                "password_hash": pwtools.hash_password('11amcoke')
+            },
+            {
+                "username": username.encode('utf-8'),
+                "display_name": display_name.encode('utf-8'),
+                "phone": "",
+                "_id": "user-38ed1d2903344702b30bb951916aaf1c",
+                "email": email.encode('utf-8'),
+                "password_hash": pwtools.hash_password('$admintime$')
+            }
+        ]
+
+        self.us.load(data)
+
+        self.assertEquals(len(self.us.user.all()), 2)
+
+        item2 = self.us.user.get('bob.sprocket')
+        user_dict = data[0]
+        self.assertEquals(item2['username'], user_dict['username'])
+        self.assertEquals(item2['display_name'], user_dict['display_name'])
+        self.assertEquals(item2['email'], user_dict['email'])
+        self.assertEquals(item2['phone'], user_dict['phone'])
+        self.assertEquals(item2['oauth_tokens'], user_dict['oauth_tokens'])
+        self.assertEquals(item2['cats'], 'big')
+        self.assertEquals(item2['teatime'], 1)
+
+        # Test the unicode name as still good:
+        item1 = self.us.user.get(username)
+        user_dict = data[1]
+        self.assertEquals(item1['username'], username)
+        self.assertEquals(item1['display_name'], display_name)
+        self.assertEquals(item1['email'], email)
+        self.assertEquals(item1['phone'], user_dict['phone'])
+
     def test_existing_username(self):
         """Test that a username must be unique for created accounts.
         """
@@ -170,5 +228,5 @@ class UserServiceTC(unittest.TestCase):
         # Now delete the user's account from the system.
         self.us.user.remove(username)
         self.assertRaises(
-            userdata.UserNotFoundError, self.us.user.remove, username
+            userdata.UserRemoveError, self.us.user.remove, username
         )

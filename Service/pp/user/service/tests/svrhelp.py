@@ -152,12 +152,7 @@ class ServerRunner(object):
             os.waitpid(self.serverProcess.pid, 0)
 
         # Make sure its actually stopped:
-        if sys.platform.startswith('linux'):
-            subprocess.call(
-                args="pkill paster",
-                shell=True,
-            )
-        elif sys.platform.startswith('win'):
+        if sys.platform.startswith('win'):
             subprocess.call(
                 args="taskkill /F /T /IM paster.exe",
                 shell=True,
@@ -215,7 +210,7 @@ def teardown_module():
     log = get_log()
     global webapp
 
-    if not webapp:
+    if webapp:
         log.debug("teardown_module: stopping test webapp '%s'." % webapp.URI)
         webapp.stop()
         webapp.cleanup()

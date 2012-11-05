@@ -8,7 +8,10 @@ import logging
 
 from pp.auth import pwtools
 from pp.user.model import db
-from pp.user.validate.error import UserNotFoundError
+from pp.user.validate.userdata import UserAddError
+from pp.user.validate.userdata import UserRemoveError
+from pp.user.validate.userdata import UserNotFoundError
+from pp.user.validate.userdata import UserPresentError
 
 
 def get_log(fn=''):
@@ -78,10 +81,6 @@ def find(**kwargs):
     return returned
 
 
-class UserRemoveError(Exception):
-    """Raised when a user could not be removed."""
-
-
 def remove(username):
     """Remove a user from the system.
 
@@ -101,14 +100,6 @@ def remove(username):
 
     conn.remove(u)
     log.debug("'{!r}' removed OK.".format(username))
-
-
-class UserPresentError(Exception):
-    """Raised by add when an existing username conflicts with the new one."""
-
-
-class UserAddError(Exception):
-    """Raised for problems adding a new user."""
 
 
 def add(**user):
