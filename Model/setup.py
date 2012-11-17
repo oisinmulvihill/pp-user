@@ -36,7 +36,8 @@ ShortDescription = Summary
 
 needed = [
     'sphinx',  # for docs generation.
-    'evasion-common',
+    'evasion-common==1.0.2',
+    'pymongo==2.3',
     'requests',
     'cmdln',
 ]
