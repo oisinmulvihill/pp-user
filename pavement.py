@@ -172,15 +172,14 @@ def build_it(options, target, target_dir=None):
     for dev_pkg in options.DEV_PKGS_IN_DEP_ORDER:
         target_dir_o = ""
         if target_dir:
-            target_dir_o = " --dist-dir=%s " % os.path.join(
-                target_dir, dev_pkg
-            )
+            target_dir_o = " --dist-dir={} ".format(target_dir)
 
         # Change in profileservice dir (reset to here after last run):
         dev_pkg.chdir()
         easy.info("-- Changing to %s and building %s --" % (dev_pkg, target))
 
-        stdout = easy.sh("{python} setup.py {target} {target_dir} ".format(
+        stdout = easy.sh(
+            "{python} setup.py {target} {target_dir} ".format(
                 python=python,
                 target_dir=target_dir_o,
                 target=target
@@ -200,6 +199,9 @@ def bdist_egg(options):
     target_dir = None
     if options.bdist_egg.target_dir:
         target_dir = options.bdist_egg.target_dir
+
+    import os
+    target_dir = os.path.abspath(target_dir)
 
     build_it(options, 'bdist_egg', target_dir)
 
