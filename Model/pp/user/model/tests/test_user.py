@@ -62,6 +62,7 @@ class UserTC(unittest.TestCase):
         self.assertTrue(user.validate_password('bob.sprocket', '11amcoke'))
         self.assertFalse(user.validate_password('bob.sprocket', 'incorrect'))
         self.assertFalse(user.validate_password(username, '11amcoke'))
+        self.assertTrue(user.validate_password(username, '$admintime$'))
 
     def test_dump_and_load(self):
         """Test the dump and loading of the user 'universe'.
