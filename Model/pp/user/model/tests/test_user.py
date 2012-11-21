@@ -22,6 +22,47 @@ class UserTC(unittest.TestCase):
         # Clear out anything that maybe left over after previous test runs:
         db.db().hard_reset()
 
+    def test_validate_password(self):
+        """
+        """
+        self.assertEquals(user.count(), 0)
+        self.assertEquals(user.dump(), [])
+
+        username = u'andrés.bolívar'
+        display_name = u'Andrés Plácido Bolívar'
+        email = u'andrés.bolívar@example.com'
+
+        data = [
+            {
+                "username": "bob.sprocket",
+                "oauth_tokens": {
+                    "googleauth": {
+                        "request_token": "1234567890"
+                    }
+                },
+                "display_name": "Bobby",
+                "phone": "12121212",
+                "cats": "big",
+                "teatime": 1,
+                "_id": "user-2719963b00964c01b42b5d81c998fd05",
+                "email": "bob@example.net",
+                "password_hash": pwtools.hash_password('11amcoke')
+            },
+            {
+                "username": username.encode('utf-8'),
+                "display_name": display_name.encode('utf-8'),
+                "phone": "",
+                "_id": "user-38ed1d2903344702b30bb951916aaf1c",
+                "email": email.encode('utf-8'),
+                "password_hash": pwtools.hash_password('$admintime$')
+            }
+        ]
+        user.load(data)
+
+        self.assertTrue(user.validate_password('bob.sprocket', '11amcoke'))
+        self.assertFalse(user.validate_password('bob.sprocket', 'incorrect'))
+        self.assertFalse(user.validate_password(username, '11amcoke'))
+
     def test_dump_and_load(self):
         """Test the dump and loading of the user 'universe'.
         """

@@ -14,10 +14,9 @@ from pp.user.validate.userdata import UserNotFoundError
 from pp.user.validate.userdata import UserPresentError
 
 
-def get_log(fn=''):
-    if fn and fn.strip():
-        fn = ".%s" % fn
-    return logging.getLogger('%s%s' % (__name__, fn))
+def get_log(extra=None):
+    m = "{}.{}".format(__name__, extra) if extra else __name__
+    return logging.getLogger(m)
 
 
 def has(username):
@@ -214,6 +213,25 @@ def change_password(username, plain_pw, confirm_plain_pw, new_plain_pw):
     :param confirm_plain_pw: The user's current password in plain text.
 
     """
+
+
+def validate_password(username, plain_pw):
+    """Validate a user's password.
+
+    :param username: The unique username of the system user.
+
+    :param plain_pw: The plain text password to check.
+
+    :returns: True means password valiates otherwise False is returned.
+
+    """
+    found_user = get(username)
+
+    result = pwtools.validate_password(
+        plain_pw, found_user['password_hash']
+    )
+
+    return result
 
 
 def load(data):
