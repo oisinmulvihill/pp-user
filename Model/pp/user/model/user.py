@@ -53,7 +53,7 @@ def get(username):
     if isinstance(username, unicode):
         username = username.encode('utf-8')
 
-    log.debug("looking for <{!r}>".format(username))
+    #log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()
 
     returned = conn.find_one(dict(username=username))
