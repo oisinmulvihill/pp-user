@@ -105,8 +105,8 @@ def user_auth(request):
     return result
 
 
-@view_config(route_name='user', request_method='POST', renderer='json')
-@view_config(route_name='user-1', request_method='POST', renderer='json')
+@view_config(route_name='user', request_method='PUT', renderer='json')
+@view_config(route_name='user-1', request_method='PUT', renderer='json')
 def user_update(request):
     """Update a stored user on the system.
 

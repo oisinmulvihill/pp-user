@@ -190,7 +190,7 @@ class UserManagement(object):
         ))
         self.log.debug("update: uri <%s>" % uri)
 
-        res = requests.post(uri, json.dumps(data), headers=self.JSON_CT)
+        res = requests.put(uri, json.dumps(data), headers=self.JSON_CT)
         rc = json.loads(res.content)
 
         # This should be a user dict and not a status response:
