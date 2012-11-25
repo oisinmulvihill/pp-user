@@ -79,12 +79,12 @@ class UserManagement(object):
         :returns: The user dict.
 
         """
-        self.log.debug("get: attempting to get user <%s>" % username)
+        #self.log.debug("get: attempting to get user <%s>" % username)
 
         uri = urljoin(self.base_uri, self.GET_UPDATE_OR_DELETE % dict(
             username=username,
         ))
-        self.log.debug("get: uri <%s>" % uri)
+        #self.log.debug("get: uri <%s>" % uri)
 
         res = requests.get(uri, headers=self.JSON_CT)
         rc = json.loads(res.content)
@@ -178,7 +178,8 @@ class UserManagement(object):
         self.log.debug("update: attempting to update user <%s>." % username)
 
         # TODO: at the moment this is travelling over the intranet we control,
-        # however this needs much stronger protection i.e. HTTPS/SSL
+        # however this needs much stronger protection i.e. HTTPS/SSL between
+        # services talking to each other.
         #
         # obuscate for moment.
         if "new_password" in data:
