@@ -76,7 +76,7 @@ class ServerRunner(object):
         # Get template in the tests dir:
         self.temp_db = os.path.join(self.test_dir, 'frontend.db')
         self.temp_config = os.path.join(self.test_dir, 'test_cfg.ini')
-        self.cmd = "paster serve %s" % self.temp_config
+        self.cmd = "pserve %s" % self.temp_config
         self.test_cfg = resource_string(__name__, 'test_cfg.ini.tmpl')
         cfg_tmpl = Template(self.test_cfg)
         data = cfg_tmpl.substitute(
