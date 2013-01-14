@@ -1,0 +1,88 @@
+[app:main]
+use = egg:pp-user-service
+
+pyramid.reload_templates = true
+pyramid.debug_authorization = false
+pyramid.debug_notfound = false
+pyramid.debug_routematch = false
+pyramid.debug_templates = false
+pyramid.default_locale_name = en
+
+mongodb.dbname = $mongodb_dbname
+
+# don't use as it screws JSON on exception handling: pyramid_debugtoolbar
+pyramid.includes =
+
+sqlalchemy.url =
+#    sqlite:///%(here)s/userservice.db
+
+# CommonDB database packages
+#
+# NOTE:
+#   The SQL user module is used to store user details and authentication.
+#
+commondb.modules =
+#    pp.auth.plugins.sql
+
+# CommonAuth setup
+#
+# NOTE: the service is reusing the SQL plugin to store users. This is not the
+# same thing as this section. The plain auth is used for service-to-service
+# authentication, which is not currently enabled.
+#
+# Cookies and login handlers
+pp.auth.site_name = 'userservice'
+pp.auth.cookie_name = auth_cookie-2469c5a169f4b5499e7dd7090adbe2265cfa50f8
+pp.auth.cookie_secret = 2469c5a169f4b5499e7dd7090adbe2265cfa50f8
+
+[server:main]
+use = egg:Paste#http
+host = $host
+port = $port
+
+# Begin logging configuration
+
+[loggers]
+keys = root, pp, sqlalchemy, requests
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = DEBUG
+handlers = console
+
+[logger_pp]
+level = DEBUG
+handlers =
+qualname = pp
+propagate = 0
+
+[logger_requests]
+level = WARN
+handlers = console
+qualname = requests
+propagate = 0
+
+[logger_sqlalchemy]
+level = INFO
+handlers =
+qualname = sqlalchemy.engine
+# "level = INFO" logs SQL queries.
+# "level = DEBUG" logs SQL queries and results.
+# "level = WARN" logs neither.  (Recommended for production systems.)
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+
+# End logging configuration
+
