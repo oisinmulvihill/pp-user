@@ -91,7 +91,7 @@ def user_auth(request):
     found_user = user.get(username)
 
     # log.error("\n\nSHOULD NOT BE SHOWN: user<%s> password <%s>\n\n" % (
-    #     found_user.to_dict(), pw
+    #     found_user, pw
     # ))
 
     result = pwtools.validate_password(
