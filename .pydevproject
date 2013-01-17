@@ -5,8 +5,8 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">/home/vagrant/src/virtualenvs/bookingsys/bin/python</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/pp-user-service/client</path>
-<path>/pp-user-service/service</path>
-<path>/pp-user-service/validate</path>
+<path>/pp-user/client</path>
+<path>/pp-user/service</path>
+<path>/pp-user/validate</path>
 </pydev_pathproperty>
 </pydev_project>
