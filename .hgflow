@@ -1,5 +1,5 @@
 [Basic]
-develop = develop
+develop = default
 feature = feature/
 version_tag = 
 publish = default
