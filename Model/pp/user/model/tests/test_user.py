@@ -4,6 +4,7 @@ Test the MongoDB implementation of user functionality.
 
 """
 import unittest
+import pytest
 
 from pp.auth import pwtools
 from pp.user.model import db
@@ -122,12 +123,10 @@ class UserTC(unittest.TestCase):
         self.assertEquals(item1['email'], email)
         self.assertEquals(item1['phone'], user_dict['phone'])
 
+    @pytest.mark.skipif('True')
     def test_change_password(self):
         """The the single call to change a users password.
         """
-        import nose
-        raise nose.SkipTest("skipping over change_password test.")
-
         username = 'bob.sprocket'
         plain_pw = '1234567890'
         confirm_plain_pw = '1234567890'
