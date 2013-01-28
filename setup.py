@@ -1,4 +1,3 @@
-from pp.pkglib.multipkg import setup
 import sys
 try:
     from pp.pkglib.multipkg import setup
