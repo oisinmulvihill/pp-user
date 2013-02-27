@@ -11,17 +11,19 @@ from pp.user.model import db
 from pp.user.model import user
 
 
-class UserTC(unittest.TestCase):
+pytest_plugins = ["pkglib.testing.pytest.mongo_server_class",
+                  "pp.testing.mongo_cleaner"]
 
+
+@pytest.mark.usefixtures('mongo_server')
+class UserTC(unittest.TestCase):
     def setUp(self):
         """Set up the mongodb connection and database, clear out test data.
         """
         # Set up the mongodb connection:
-        db.init(dict(db_name="unittesting1"))
-        #db.init(dict(db_name="dal_unittesting1"))
-
-        # Clear out anything that maybe left over after previous test runs:
-        db.db().hard_reset()
+        db.init(dict(db_name="unit_test",
+                     host=self.mongo_server.hostname,
+                     port=self.mongo_server.port))
 
     def test_validate_password(self):
         """

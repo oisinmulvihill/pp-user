@@ -19,10 +19,15 @@ from pp.user.validate import userdata
 from pkglib.testing import pyramid_server
 
 
-def test_RestClientPing(mongo_server, user_service):
+pytest_plugins = ["pkglib.testing.pytest.mongo_server_session",
+                  "pp.testing.mongo_cleaner",
+                  "pp.user.service.tests.server"]
+
+
+def test_RestClientPing(mongo_server, user_svc):
     """Test the rest client's ping of the user service.
     """
-    report = user_service.api.ping()
+    report = user_svc.api.ping()
 
     assert "name" in report
     assert "version" in report
@@ -35,11 +40,11 @@ def test_RestClientPing(mongo_server, user_service):
     assert report['version'] == pkg.version
 
 
-def test_UserLoadingAndDumping(mongo_server, user_service):
+def test_UserLoadingAndDumping(mongo_server, user_svc):
     """Test the rest client's ping of the user service.
     """
-    assert not len(user_service.api.user.all())
-    assert user_service.api.dump() == []
+    assert not len(user_svc.api.user.all())
+    assert user_svc.api.dump() == []
 
     username = u'andrés.bolívar'
     display_name = u'Andrés Plácido Bolívar'
@@ -71,11 +76,11 @@ def test_UserLoadingAndDumping(mongo_server, user_service):
         }
     ]
 
-    user_service.api.load(data)
+    user_svc.api.load(data)
 
-    assert len(user_service.api.user.all()) == 2
+    assert len(user_svc.api.user.all()) == 2
 
-    item2 = user_service.api.user.get('bob.sprocket')
+    item2 = user_svc.api.user.get('bob.sprocket')
     user_dict = data[0]
     assert item2['username'] == user_dict['username']
     assert item2['display_name'] == user_dict['display_name']
@@ -86,18 +91,19 @@ def test_UserLoadingAndDumping(mongo_server, user_service):
     assert item2['teatime'] == 1
 
     # Test the unicode name as still good:
-    item1 = user_service.api.user.get(username)
+    item1 = user_svc.api.user.get(username)
     user_dict = data[1]
     assert item1['username'] == username
     assert item1['display_name'] == display_name
     assert item1['email'] == email
     assert item1['phone'] == user_dict['phone']
 
-def test_existing_username(mongo_server, user_service):
+
+def test_existing_username(mongo_server, user_svc):
     """Test that a username must be unique for created accounts.
     """
     # make sure nothing is there to begin with.
-    assert len(user_service.api.user.all()) == 0
+    assert len(user_svc.api.user.all()) == 0
 
     user = dict(
         username="bob",
@@ -105,8 +111,8 @@ def test_existing_username(mongo_server, user_service):
         email="bob.sprocket@example.com",
     )
 
-    bob = user_service.api.user.add(user)
-    assert (bob['username'], 'bob')
+    bob = user_svc.api.user.add(user)
+    assert bob['username'] == 'bob'
 
     user = dict(
         username="bob",
@@ -115,9 +121,10 @@ def test_existing_username(mongo_server, user_service):
     )
 
     with pytest.raises(userdata.UserPresentError):
-        user_service.api.user.add(user)
+        user_svc.api.user.add(user)
 
-def test_password_change(mongo_server, user_service):
+
+def test_password_change(mongo_server, user_svc):
     """Test changing a user's password.
     """
     username = "bob"
@@ -129,27 +136,28 @@ def test_password_change(mongo_server, user_service):
         email="bob.sprocket@example.com",
     )
 
-    user_service.api.user.add(user)
+    user_svc.api.user.add(user)
 
-    result = user_service.api.user.authenticate(username, plain_pw)
+    result = user_svc.api.user.authenticate(username, plain_pw)
     assert result is True
 
     # Change and test the old password is no longer valid.
     new_plain_pw = "654321"
 
-    user_service.api.user.update(dict(
+    user_svc.api.user.update(dict(
         username=username,
         password_hash=pwtools.hash_password(new_plain_pw),
     ))
 
     username = user['username']
-    assert user_service.api.user.authenticate(username, plain_pw) is False
+    assert user_svc.api.user.authenticate(username, plain_pw) is False
 
     # Now test that password has changed.
     username = user['username']
-    assert user_service.api.user.authenticate(username, new_plain_pw) is True
+    assert user_svc.api.user.authenticate(username, new_plain_pw) is True
 
-def test_user_management(mongo_server, user_service):
+
+def test_user_management(mongo_server, user_svc):
     """Test the REST based interface to add/remove/update users.
     """
     user = dict(
@@ -161,7 +169,7 @@ def test_user_management(mongo_server, user_service):
         #extra={},
     )
 
-    bob = user_service.api.user.add(user)
+    bob = user_svc.api.user.add(user)
 
     assert bob['username'] == user['username']
     assert bob['display_name'] == user['display_name']
@@ -176,7 +184,7 @@ def test_user_management(mongo_server, user_service):
     # No plain text password is stored or sent over the wire:
     assert 'password_hash' in bob
 
-    bob = user_service.api.user.get(user['username'])
+    bob = user_svc.api.user.get(user['username'])
 
     assert bob['username'] == user['username']
     assert bob['display_name'] == user['display_name']
@@ -187,16 +195,16 @@ def test_user_management(mongo_server, user_service):
 
     # Check I can't add the same user a second time:
     with pytest.raises(userdata.UserPresentError):
-        user_service.api.user.add(user)
+        user_svc.api.user.add(user)
 
     # Test verifcation of the password:
     plain_pw = "123456"
     username = user['username']
-    assert user_service.api.user.authenticate(username, plain_pw) is True
+    assert user_svc.api.user.authenticate(username, plain_pw) is True
 
     plain_pw = "not the correct password"
     username = user['username']
-    assert user_service.api.user.authenticate(username, plain_pw) is False
+    assert user_svc.api.user.authenticate(username, plain_pw) is False
 
     # Try updating all user's information that can be changed:
     user = dict(
@@ -208,9 +216,9 @@ def test_user_management(mongo_server, user_service):
         #extra={"a": 1},
     )
 
-    user_service.api.user.update(user)
+    user_svc.api.user.update(user)
 
-    bob = user_service.api.user.get(user['username'])
+    bob = user_svc.api.user.get(user['username'])
 
     assert bob['username'] == user['username']
     assert bob['display_name'] == user['display_name']
@@ -219,6 +227,6 @@ def test_user_management(mongo_server, user_service):
     #assert bob['extra'] == user['extra']
 
     # Now delete the user's account from the system.
-    user_service.api.user.remove(username)
+    user_svc.api.user.remove(username)
     with pytest.raises(userdata.UserRemoveError):
-        user_service.api.user.remove(username)
+        user_svc.api.user.remove(username)
