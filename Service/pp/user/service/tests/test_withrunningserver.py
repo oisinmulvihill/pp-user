@@ -5,18 +5,11 @@ Integration Test verifing the client REST interface against the service.
 PythonPro Limited
 
 """
-import ConfigParser
-
 import pkg_resources
 import pytest
 
 from pp.auth import pwtools
-from pp.user.model import db
-from pp.user.client import rest
 from pp.user.validate import userdata
-
-
-from pkglib.testing import pyramid_server
 
 
 pytest_plugins = ["pkglib.testing.pytest.mongo_server_session",
