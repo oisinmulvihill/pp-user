@@ -18,14 +18,9 @@ def user_svc(request):
     """
     test_server = mongo_webservice.MongoConfiguredWebService(
         request=request,
+        port_seed=64001,
         testing_ini=os.path.join(os.path.dirname(__file__), 'user.ini'),
         rest_api_class=rest.UserService)
 
     request.addfinalizer(lambda s=test_server: s.teardown())
-
-    # XXX not available using session scope
-    # This is to support UnitTest-based tests
-    #if request.cls:
-    #    request.cls.user_svc = test_server
-
     return test_server
