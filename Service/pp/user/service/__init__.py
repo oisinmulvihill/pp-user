@@ -64,7 +64,7 @@ def main(global_config, **settings):
 
     # Pick up the views which set up the views automatically:
     #
-    config.scan("pp.user.service")
+    config.scan("pp.user.service", ignore="pp.user.service.tests")
 
     # Make the pyramid app I'll then wrap in other middleware:
     app = config.make_wsgi_app()
