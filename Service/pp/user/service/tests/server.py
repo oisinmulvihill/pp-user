@@ -8,8 +8,8 @@ import os
 
 import pytest
 
-from pp.testing import mongo_webservice
 from pp.user.client import rest
+from pp.testing import mongo_webservice
 
 
 @pytest.fixture(scope='session')

@@ -257,7 +257,7 @@ class UserService(object):
         """
         self.log = get_log("UserService")
         self.base_uri = uri
-        self.user = UserManagement(self.base_uri)
+        self.api = UserManagement(self.base_uri)
 
     def ping(self):
         """Recover the User Service status page.
