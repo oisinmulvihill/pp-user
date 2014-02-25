@@ -36,7 +36,7 @@ class AdminCmds(cmdln.Cmdln):
         optparser.add_option(
             '-c', '--config', action='store',
             dest="config_filename",
-            default="lp-admin.ini",
+            default="config.ini",
             help='The global config file %default'
         )
 
