@@ -48,16 +48,16 @@ def mongodb(request):
 
     log = get_log('mongodb')
 
-    db_name = "testingdb-{}".format(uuid.uuid4().hex)
+    dbname = "testingdb-{}".format(uuid.uuid4().hex)
 
-    mongo.init(dict(db_name=db_name))
+    mongo.init(dict(dbname=dbname))
     db = mongo.db()
     db.hard_reset()
-    log.info('database ready for testing "{}"'.format(db_name))
+    log.info('database ready for testing "{}"'.format(dbname))
 
     def db_teardown(x=None):
         db.hard_reset()
-        log.warn('teardown database for testing "{}"'.format(db_name))
+        log.warn('teardown database for testing "{}"'.format(dbname))
 
     request.addfinalizer(db_teardown)
 
