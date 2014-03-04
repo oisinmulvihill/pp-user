@@ -22,7 +22,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
 
     cfg = dict(
-        db_name=settings.get("mongodb.dbname", "ppusertestdb"),
+        dbname=settings.get("mongodb.dbname", "ppusertestdb"),
         port=int(settings.get("mongodb.port", 27017)),
         host=settings.get("mongodb.host", "127.0.0.1"),
     )
