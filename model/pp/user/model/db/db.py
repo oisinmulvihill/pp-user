@@ -33,7 +33,7 @@ class DB(object):
     def __init__(self, config={}):
         self.log = logging.getLogger("%s.DB" % __name__)
         self.config = config
-        self.db_name = config.get("db_name", "test-db").strip()
+        self.dbname = config.get("dbname", "test-db").strip()
         self.port = int(config.get("port", 27017))
         self.host = config.get("host", "localhost").strip()
         self._connection = None
@@ -50,7 +50,7 @@ class DB(object):
         :returns: A mongodb Connection instance for the configured db name.
 
         """
-        return self.mongo_conn()[self.db_name]['everyone']
+        return self.mongo_conn()[self.dbname]['everyone']
 
     def hard_reset(self):
         """Remove the database from mongo clearing out all contents.
@@ -58,7 +58,7 @@ class DB(object):
         This is used mainly in testing.
 
         """
-        self.mongo_conn().drop_database(self.db_name)
+        self.mongo_conn().drop_database(self.dbname)
 
 
 # The

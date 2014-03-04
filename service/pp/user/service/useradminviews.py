@@ -12,6 +12,7 @@ from pyramid.view import view_config
 from pp.auth import pwtools
 from pp.user.model import user
 from pp.user.validate import userdata
+from pp.web.base.restfulhelpers import json_result
 
 
 def get_log(extra=None):
@@ -21,6 +22,7 @@ def get_log(extra=None):
 
 @view_config(route_name='the_users', request_method='PUT', renderer='json')
 @view_config(route_name='the_users-1', request_method='PUT', renderer='json')
+@json_result
 def user_add(request):
     """Add a new user to the system when the data is PUT to the server.
 
@@ -44,6 +46,7 @@ def user_add(request):
 
 @view_config(route_name='the_users', request_method='GET', renderer='json')
 @view_config(route_name='the_users-1', request_method='GET', renderer='json')
+@json_result
 def the_users(request):
     """Handle the recovery of all users currently on the system.
 
@@ -62,6 +65,7 @@ def the_users(request):
 
 
 @view_config(route_name='user-auth', request_method='POST', renderer='json')
+@json_result
 def user_auth(request):
     """Handle password verification.
 
@@ -107,6 +111,7 @@ def user_auth(request):
 
 @view_config(route_name='user', request_method='PUT', renderer='json')
 @view_config(route_name='user-1', request_method='PUT', renderer='json')
+@json_result
 def user_update(request):
     """Update a stored user on the system.
 
@@ -138,6 +143,7 @@ def user_update(request):
 
 @view_config(route_name='user', request_method='GET', renderer='json')
 @view_config(route_name='user-1', request_method='GET', renderer='json')
+@json_result
 def user_get(request):
     """Recover a user based on the given username.
 
@@ -157,6 +163,7 @@ def user_get(request):
 
 @view_config(route_name='user', request_method='DELETE', renderer='json')
 @view_config(route_name='user-1', request_method='DELETE', renderer='json')
+@json_result
 def user_remove(request):
     """Remove a user from the system.
 

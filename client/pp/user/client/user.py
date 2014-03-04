@@ -5,9 +5,6 @@ This provides the REST classes used to access the User Service.
 This API is not for Public consumption. It is meant for internal tools and
 service to service access.
 
-Substantially based upon PythonPro's pp-user project to get things off the
-ground quickly.
-
 Oisin Mulvihill
 (c) PythonPro Limited, RedDeer Limited.
 2014-01-23
@@ -19,8 +16,8 @@ from urlparse import urljoin
 
 import requests
 
-from reddeer.user.validate import error
-from reddeer.user.validate import userdata
+from pp.user.validate import error
+from pp.user.validate import userdata
 
 
 def get_log(e=None):
@@ -66,18 +63,13 @@ class UserManagement(object):
         self.log.debug("all: uri <%s>" % uri)
 
         res = requests.get(uri)
+        rc = res.json()
+        if not rc['success']:
+            raise error.UserServiceError(rc['message'])
 
-        rc = json.loads(res.content)
-        if "status" in rc:
-            # List should be a list and not an error dict!
-            raise error.CommunicationError(rc['message'])
+        self.log.debug("all: found <%s>" % len(rc['data']))
 
-        else:
-            return rc
-
-        self.log.debug("all: found <%s>" % len(rc))
-
-        return rc
+        return rc['data']
 
     def get(self, username):
         """Get an existing user of the system.
@@ -93,18 +85,11 @@ class UserManagement(object):
         #self.log.debug("get: uri <%s>" % uri)
 
         res = requests.get(uri, headers=self.JSON_CT)
-        rc = json.loads(res.content)
+        rc = res.json()
+        if not rc['success']:
+            raise error.UserServiceError(rc['message'])
 
-        # this should be a user dict and not a status which means error:
-        if rc and "status" in rc:
-            error = rc['error'].strip()
-            if hasattr(userdata, error):
-                # re-raise the error:
-                raise getattr(userdata, error)(rc['message'])
-            else:
-                raise error.UserRemoveError("%s: %s" % (error, rc['message']))
-        else:
-            return rc
+        return rc['data']
 
     def add(self, user):
         """Add a new user to the system.
@@ -123,19 +108,11 @@ class UserManagement(object):
         self.log.debug("add: uri <%s>" % uri)
 
         res = requests.put(uri, json.dumps(user), headers=self.JSON_CT)
-        rc = json.loads(res.content)
+        rc = res.json()
+        if not rc['success']:
+            raise userdata.UserServiceError(rc['message'])
 
-        if rc and "status" in rc and rc['status'] == "error":
-            error = rc['error'].strip()
-            if hasattr(userdata, error):
-                # re-raise the error:
-                raise getattr(userdata, error)(rc['message'])
-            else:
-                raise userdata.UserNotFoundError(
-                    "{}: {}".format(error, rc['message'])
-                )
-        else:
-            return rc
+        return rc['data']
 
     def remove(self, username):
         """Remove an existing user from the system.
@@ -151,18 +128,11 @@ class UserManagement(object):
         self.log.debug("remove: uri <%s>" % uri)
 
         res = requests.delete(uri, headers=self.JSON_CT)
-        rc = json.loads(res.content)
+        rc = res.json()
+        if not rc['success']:
+            raise userdata.UserServiceError(rc['message'])
 
-        # If this is a dict its an error status.
-        if isinstance(rc, dict):
-            error = rc['error'].strip()
-            if hasattr(userdata, error):
-                # re-raise the error:
-                raise getattr(userdata, error)(rc['message'])
-            else:
-                raise SystemError("%s: %s" % (error, rc['message']))
-        else:
-            return rc
+        return rc['data']
 
     def update(self, data):
         """Update the details about an existing user.
@@ -197,18 +167,11 @@ class UserManagement(object):
         self.log.debug("update: uri <%s>" % uri)
 
         res = requests.put(uri, json.dumps(data), headers=self.JSON_CT)
-        rc = json.loads(res.content)
+        rc = res.json()
+        if not rc['success']:
+            raise userdata.UserServiceError(rc['message'])
 
-        # This should be a user dict and not a status response:
-        if rc and "status" in rc:
-            error = rc['error'].strip()
-            if hasattr(userdata, error):
-                # re-raise the error:
-                raise getattr(userdata, error)(rc['message'])
-            else:
-                raise SystemError("%s: %s" % (error, rc['message']))
-        else:
-            return rc
+        return rc['data']
 
     def authenticate(self, username, plain_password):
         """Verify the password for the given username.
@@ -232,16 +195,8 @@ class UserManagement(object):
         self.log.debug("authenticate: uri <%s>" % uri)
 
         res = requests.post(uri, json.dumps(data), headers=self.JSON_CT)
-        rc = json.loads(res.content)
+        rc = res.json()
+        if not rc['success']:
+            raise userdata.UserServiceError(rc['message'])
 
-        # this should only be True or False and not a status dict
-        # which has an error.
-        if not isinstance(rc, bool):
-            error = rc['error'].strip()
-            if hasattr(userdata, error):
-                # re-raise the error:
-                raise getattr(userdata, error)(rc['message'])
-            else:
-                raise SystemError("%s: %s" % (error, rc['message']))
-        else:
-            return rc
+        return rc['data']

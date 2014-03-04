@@ -12,15 +12,13 @@ from pp.auth import pwtools
 from pp.user.validate import userdata
 
 
-pytest_plugins = ["pkglib.testing.pytest.mongo_server_session",
-                  "pp.testing.mongo_cleaner",
-                  "pp.user.service.tests.server"]
-
-
-def test_RestClientPing(mongo_server, user_svc):
+def test_RestClientPing(logger, mongodb, user_svc):
     """Test the rest client's ping of the user service.
     """
     report = user_svc.api.ping()
+
+    assert report['success'] is True
+    report = report['data']
 
     assert "name" in report
     assert "version" in report
@@ -33,7 +31,7 @@ def test_RestClientPing(mongo_server, user_svc):
     assert report['version'] == pkg.version
 
 
-def test_UserLoadingAndDumping(mongo_server, user_svc):
+def test_UserLoadingAndDumping(logger, mongodb, user_svc):
     """Test the rest client's ping of the user service.
     """
     assert not len(user_svc.api.user.all())
@@ -92,7 +90,7 @@ def test_UserLoadingAndDumping(mongo_server, user_svc):
     assert item1['phone'] == user_dict['phone']
 
 
-def test_existing_username(mongo_server, user_svc):
+def test_existing_username(logger, mongodb, user_svc):
     """Test that a username must be unique for created accounts.
     """
     # make sure nothing is there to begin with.
@@ -113,11 +111,11 @@ def test_existing_username(mongo_server, user_svc):
         email="fred.bale@example.net",
     )
 
-    with pytest.raises(userdata.UserPresentError):
+    with pytest.raises(userdata.UserServiceError):
         user_svc.api.user.add(user)
 
 
-def test_password_change(mongo_server, user_svc):
+def test_password_change(logger, mongodb, user_svc):
     """Test changing a user's password.
     """
     username = "bob"
@@ -150,7 +148,7 @@ def test_password_change(mongo_server, user_svc):
     assert user_svc.api.user.authenticate(username, new_plain_pw) is True
 
 
-def test_user_management(mongo_server, user_svc):
+def test_user_management(logger, mongodb, user_svc):
     """Test the REST based interface to add/remove/update users.
     """
     user = dict(
@@ -187,7 +185,7 @@ def test_user_management(mongo_server, user_svc):
     assert '_id' in bob
 
     # Check I can't add the same user a second time:
-    with pytest.raises(userdata.UserPresentError):
+    with pytest.raises(userdata.UserServiceError):
         user_svc.api.user.add(user)
 
     # Test verifcation of the password:
@@ -221,5 +219,5 @@ def test_user_management(mongo_server, user_svc):
 
     # Now delete the user's account from the system.
     user_svc.api.user.remove(username)
-    with pytest.raises(userdata.UserRemoveError):
+    with pytest.raises(userdata.UserServiceError):
         user_svc.api.user.remove(username)

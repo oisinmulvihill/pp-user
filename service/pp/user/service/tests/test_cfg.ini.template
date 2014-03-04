@@ -1,0 +1,103 @@
+# String template processed prior to server start.
+#
+# Needs:
+#
+#   path_and_db, host, port
+#
+[app:main]
+use = egg:pp-user-service
+
+pyramid.reload_templates = true
+pyramid.debug_authorization = false
+pyramid.debug_notfound = false
+pyramid.debug_routematch = false
+pyramid.debug_templates = false
+pyramid.default_locale_name = en
+
+# don't use as it screws JSON on exception handling: pyramid_debugtoolbar
+pyramid.includes =
+
+
+# CommonAuth setup
+#
+# NOTE: the service is reusing the SQL plugin to store users. This is not the
+# same thing as this section. The plain auth is used for service-to-service
+# authentication, which is not currently enabled.
+#
+# Cookies and login handlers
+pp.auth.site_name = 'pp.userservice'
+pp.auth.cookie_name = auth_cookie-ca194b905705e8753bd7a7ea97fa6b9234cec5a4
+pp.auth.cookie_secret = ca194b905705e8753bd7a7ea97fa6b9234cec5a4
+pp.auth.login_url = /login
+pp.auth.login_handler_url = /login_handler
+
+# Repoze plugin config
+#pp.auth.plugins = pp.auth.plugins.plain
+#pp.auth.authenticators = plain
+#pp.auth.mdproviders = plain
+#pp.auth.groups = plain
+#pp.auth.permissions = plain
+
+# Plain auth plugin
+#pp.auth.plain.password_file = %(here)s/auth/passwd.csv
+#pp.auth.plain.groups_file = %(here)s/auth/groups.ini
+#pp.auth.plain.permissions_file = %(here)s/auth/permissions.ini
+
+# mongo db connection details:
+mongo.host = $mongo_host
+mongo.port = $mongo_port
+mongo.dbname = $mongo_dbname
+
+# Enable GraphitePusher sending stats to graphite (if its listening):
+metrics.enabled = no
+metrics.host = localhost
+metrics.port = 2003
+metrics.prefix = userservice
+metrics.period = 60
+metrics.allow = *
+
+
+[server:main]
+use = egg:Paste#http
+host = $interface
+port = $port
+
+# Begin logging configuration
+
+[loggers]
+keys = root, pp, sqlalchemy
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = INFO
+handlers = console
+
+[logger_pp]
+level = DEBUG
+handlers =
+qualname = pp
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+# "level = INFO" logs SQL queries.
+# "level = DEBUG" logs SQL queries and results.
+# "level = WARN" logs neither.  (Recommended for production systems.)
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+
+# End logging configuration
+

@@ -6,39 +6,43 @@ server side.
 """
 
 
-class UserAddError(Exception):
+class UserServiceError(Exception):
+    """Base class for UserService errors."""
+
+
+class UserAddError(UserServiceError):
     """A server error occured adding a user."""
 
 
-class UserPresentError(Exception):
+class UserPresentError(UserServiceError):
     """Raised when a user was attempted to be added when present."""
 
 
-class UserRemoveError(Exception):
+class UserRemoveError(UserServiceError):
     """Raised when a user could not be removed."""
 
 
-class UserNotFoundError(Exception):
+class UserNotFoundError(UserServiceError):
     """Raised when a user is not present on the system."""
 
 
-class UserNameRequiredError(Exception):
+class UserNameRequiredError(UserServiceError):
     """Raised when a username is not present or empty."""
 
 
-class UserNameTooSmallError(Exception):
+class UserNameTooSmallError(UserServiceError):
     """The user name is not >= 3 characters."""
 
 
-class PasswordRequiredError(Exception):
+class PasswordRequiredError(UserServiceError):
     """Raised when a password is not present or empty."""
 
 
-class EmailRequiredError(Exception):
+class EmailRequiredError(UserServiceError):
     """Raised when a email is not present or empty."""
 
 
-class PasswordTooSmallError(Exception):
+class PasswordTooSmallError(UserServiceError):
     """Password must be a >= 6 characters."""
 
 
