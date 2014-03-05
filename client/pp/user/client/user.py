@@ -45,6 +45,8 @@ class UserManagement(object):
 
     AUTH = "/access/auth/%(username)s/"
 
+    TOKEN = "/access/secret/%(access_token)s/"
+
     GET_UPDATE_OR_DELETE = "/user/%(username)s/"
 
     def __init__(self, uri):
@@ -198,5 +200,20 @@ class UserManagement(object):
         rc = res.json()
         if not rc['success']:
             raise userdata.UserServiceError(rc['message'])
+
+        return rc['data']
+
+    def secret_for_access_token(self, access_token):
+        """Recover the secret for the given access token.
+        """
+        uri = urljoin(self.base_uri, self.TOKEN % dict(
+            access_token=access_token,
+        ))
+        self.log.debug("secret_for_access_token: uri <%s>" % uri)
+
+        res = requests.get(uri, headers=self.JSON_CT)
+        rc = res.json()
+        if not rc['success']:
+            raise error.UserServiceError(rc['message'])
 
         return rc['data']

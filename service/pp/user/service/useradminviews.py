@@ -179,3 +179,20 @@ def user_remove(request):
     user.remove(username)
 
     log.warn("user <{!r}> removed ok.".format(username))
+
+
+@view_config(route_name='user-secret', request_method='GET', renderer='json')
+@view_config(route_name='user-secret-1', request_method='GET', renderer='json')
+@json_result
+def secret_for_access_token(request):
+    """Recover the secret token for a given access token.
+
+    :returns: the secret token string or None if nothing was found.
+
+    """
+    log = get_log("secret_for_access_token")
+
+    access_token = request.matchdict['access_token'].strip()
+    log.warn("Attempting to find secret for access '{}'.".format(access_token))
+
+    return user.secret_for_access_token(access_token)

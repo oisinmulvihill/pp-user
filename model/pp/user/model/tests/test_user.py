@@ -9,6 +9,51 @@ from pp.auth import pwtools
 from pp.user.model import user
 
 
+def test_user_recovery_for_access_token(logger, mongodb):
+    """Test the recover a user's access_secret based on a given access_token.
+
+    """
+    assert user.count() == 0
+    assert user.dump() == []
+
+    username = 'bob'
+
+    access_token = (
+        "eyJleHBpcmVzIjogMTAsICJzYWx0IjogImMyNzZjMCIsICJpZGVudGl0eSI6ICJib2Iif"
+        "QtSy56A7SfLFayHdmuWdwZDBZESKvDCVAIxwHmYqg1wd8LOn12djG_thZg26TTzknKVqT"
+        "GmkOs5hs-B-zSfjVU="
+    )
+
+    access_secret = (
+        "cf25474cda623fe4cb9cebdbb0c328d44ec33d883d27b8e5dc7d62de2247296fe85e7"
+        "3dc6fb2d6cfe19f2c107676b52070010b1f932c6f25f74f308fe19c09f3"
+    )
+
+    data = [
+        {
+            "username": username,
+            "tokens": {
+                access_token: {
+                    "access_secret": access_secret
+                }
+            },
+            "display_name": "Bobby",
+            "phone": "12121212",
+            "_id": "user-2719963b00964c01b42b5d81c998fd05",
+            "email": "bob@example.net",
+            "password_hash": pwtools.hash_password('11amcoke')
+        },
+    ]
+    user.load(data)
+
+    # Recover the user's secret given the access_token:
+    found = user.secret_for_access_token(access_token)
+    assert found == access_secret
+
+    # If the token is unknown the nothing will be returned.
+    assert user.secret_for_access_token('fake-token') is None
+
+
 def test_validate_password(logger, mongodb):
 
     assert user.count() == 0

@@ -234,6 +234,54 @@ def validate_password(username, plain_pw):
     return result
 
 
+def secret_for_access_token(access_token):
+    """Recover the user's for the given access_token.
+
+    :param access_token: The access token string to look with.
+
+    :returns: the secret token string or None if nothing was found.
+
+    """
+    access_secret = None
+    log = get_log('user_for_access_token')
+
+    log.debug("Looking for access token '{}' owner".format(access_token))
+
+    for userdict in find():
+        if 'tokens' not in userdict:
+            log.debug(
+                "user '{}' has no tokens field. Skipping.".format(
+                    userdict['username']
+                )
+            )
+            continue
+
+        if access_token in userdict['tokens']:
+            access_secret = userdict['tokens'][access_token]['access_secret']
+            log.debug(
+                "secret found for access_token '{}' owner:'{}'" .format(
+                    access_token, userdict['username']
+                )
+            )
+            break
+
+        else:
+            log.debug(
+                "user '{}' access token doesn't match.".format(
+                    userdict['username']
+                )
+            )
+
+    if not access_secret:
+        log.debug(
+            "No access secret found for access_token '{}'".format(
+                access_token
+            )
+        )
+
+    return access_secret
+
+
 def load(data):
     """Load all users into the system.
     """

@@ -22,9 +22,9 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
 
     cfg = dict(
-        dbname=settings.get("mongodb.dbname", "ppusertestdb"),
-        port=int(settings.get("mongodb.port", 27017)),
-        host=settings.get("mongodb.host", "127.0.0.1"),
+        dbname=settings.get("mongo.dbname", "ppusertestdb"),
+        port=int(settings.get("mongo.port", 27017)),
+        host=settings.get("mongo.host", "127.0.0.1"),
     )
     log.info("MongoDB config<{:s}>".format(cfg))
     db.init(cfg)
@@ -55,12 +55,14 @@ def main(global_config, **settings):
     config.add_route('the_users-1', '/users/')
 
     config.add_route('user-auth', '/access/auth/{username}/')
+    config.add_route('user-auth-1', '/access/auth/{username}')
+
+    # recover an access secret token for the given access token:
+    config.add_route('user-secret', '/access/secret/{access_token}/')
+    config.add_route('user-secret-1', '/access/secret/{access_token}/')
 
     config.add_route('user', '/user/{username}')
     config.add_route('user-1', '/user/{username}/')
-
-    # Testing clients for GET, PUT, POST, DELETE against out server:
-    config.add_route('verb_test', '/verb/test/{id}')
 
     # Pick up the views which set up the views automatically:
     #

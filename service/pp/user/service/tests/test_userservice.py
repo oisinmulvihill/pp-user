@@ -12,6 +12,53 @@ from pp.auth import pwtools
 from pp.user.validate import userdata
 
 
+def test_secret_for_access_token_recovery_restapi(logger, mongodb, user_svc):
+    """Test the REST client's secret token recovery for an access token.
+    """
+    assert not len(user_svc.api.user.all())
+    assert user_svc.api.dump() == []
+
+    username = 'bob'
+
+    access_token = (
+        "eyJleHBpcmVzIjogMTAsICJzYWx0IjogImMyNzZjMCIsICJpZGVudGl0eSI6ICJib2Iif"
+        "QtSy56A7SfLFayHdmuWdwZDBZESKvDCVAIxwHmYqg1wd8LOn12djG_thZg26TTzknKVqT"
+        "GmkOs5hs-B-zSfjVU="
+    )
+
+    access_secret = (
+        "cf25474cda623fe4cb9cebdbb0c328d44ec33d883d27b8e5dc7d62de2247296fe85e7"
+        "3dc6fb2d6cfe19f2c107676b52070010b1f932c6f25f74f308fe19c09f3"
+    )
+
+    data = [
+        {
+            "username": username,
+            "tokens": {
+                access_token: {
+                    "access_secret": access_secret
+                }
+            },
+            "display_name": "Bobby",
+            "phone": "12121212",
+            "_id": "user-2719963b00964c01b42b5d81c998fd05",
+            "email": "bob@example.net",
+            "password_hash": pwtools.hash_password('11amcoke')
+        },
+    ]
+    user_svc.api.load(data)
+
+    assert len(user_svc.api.user.all()) == 1
+
+    # Recover the user's secret given the access_token:
+    found = user_svc.api.user.secret_for_access_token(access_token)
+    assert found == access_secret
+
+    # If the token is unknown the nothing will be returned.
+    found = user_svc.api.user.secret_for_access_token('a fake token')
+    assert found == None
+
+
 def test_RestClientPing(logger, mongodb, user_svc):
     """Test the rest client's ping of the user service.
     """
