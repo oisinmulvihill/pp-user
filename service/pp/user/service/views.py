@@ -7,11 +7,9 @@ This provides the views which are used in the dispatch routing set up.
 PythonPro Limited
 
 """
-import json
 import pkg_resources
 
 from pyramid.view import view_config
-
 from pp.web.base.restfulhelpers import json_result
 
 

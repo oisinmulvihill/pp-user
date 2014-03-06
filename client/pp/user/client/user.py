@@ -67,7 +67,7 @@ class UserManagement(object):
         res = requests.get(uri)
         rc = res.json()
         if not rc['success']:
-            raise error.UserServiceError(rc['message'])
+            raise userdata.UserServiceError(rc['message'])
 
         self.log.debug("all: found <%s>" % len(rc['data']))
 
@@ -89,7 +89,7 @@ class UserManagement(object):
         res = requests.get(uri, headers=self.JSON_CT)
         rc = res.json()
         if not rc['success']:
-            raise error.UserServiceError(rc['message'])
+            raise userdata.UserServiceError(rc['message'])
 
         return rc['data']
 
@@ -214,6 +214,6 @@ class UserManagement(object):
         res = requests.get(uri, headers=self.JSON_CT)
         rc = res.json()
         if not rc['success']:
-            raise error.UserServiceError(rc['message'])
+            raise userdata.UserServiceError(rc['message'])
 
         return rc['data']
