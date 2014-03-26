@@ -22,9 +22,9 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
 
     cfg = dict(
-        dbname=settings.get("mongo.dbname", "ppusertestdb"),
-        port=int(settings.get("mongo.port", 27017)),
-        host=settings.get("mongo.host", "127.0.0.1"),
+        dbname=settings.get("mongodb.dbname", "ppusertestdb"),
+        port=int(settings.get("mongodb.port", 27017)),
+        host=settings.get("mongodb.host", "127.0.0.1"),
     )
     log.info("MongoDB config<{:s}>".format(cfg))
     db.init(cfg)
