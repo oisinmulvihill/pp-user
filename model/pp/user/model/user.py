@@ -5,6 +5,7 @@ provides.
 
 """
 import logging
+import pprint
 
 from pp.auth import pwtools
 from pp.user.model import db
@@ -53,7 +54,7 @@ def get(username):
     if isinstance(username, unicode):
         username = username.encode('utf-8')
 
-    #log.debug("looking for <{!r}>".format(username))
+    # log.debug("looking for <{!r}>".format(username))
     conn = db.db().conn()
 
     returned = conn.find_one(dict(username=username))
@@ -288,7 +289,15 @@ def load(data):
     log = get_log('load')
     conn = db.db().conn()
     log.warn("loading '{}' users.".format(len(data)))
-    conn.insert(data)
+    for user in data:
+        log.info("Looking for user {}".format(user['_id']))
+        existing = conn.find_one(user['_id'])
+        log.info(pprint.pformat(existing))
+        if existing:
+            res = conn.update(existing, user)
+        else:
+            res = conn.insert(user)
+        log.info(pprint.pformat(res))
 
 
 def dump():

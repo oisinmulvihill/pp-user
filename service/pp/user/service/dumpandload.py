@@ -6,6 +6,7 @@ PythonPro Limited
 
 """
 import logging
+import pprint
 
 from pyramid.view import view_config
 
@@ -37,4 +38,5 @@ def load_everyone(request):
     """
     get_log("load_everyone").warn("Loading from JSON.")
     data = request.json_body
+    get_log("load_everyone").debug(pprint.pformat(data))
     db.load(data)
