@@ -44,9 +44,9 @@ pp.auth.login_handler_url = /login_handler
 #pp.auth.plain.permissions_file = %(here)s/auth/permissions.ini
 
 # mongo db connection details:
-mongo.host = $mongo_host
-mongo.port = $mongo_port
-mongo.dbname = $mongo_dbname
+mongodb.host = $mongo_host
+mongodb.port = $mongo_port
+mongodb.dbname = $mongo_dbname
 
 # Enable GraphitePusher sending stats to graphite (if its listening):
 metrics.enabled = no
