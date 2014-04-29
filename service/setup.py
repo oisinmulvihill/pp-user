@@ -27,4 +27,7 @@ except ImportError:
 #       ),
 # ])
 
-setup(entry_points={'paste.app_factory': 'main = pp.user.service:main'})
+setup(
+    zip_safe=False,
+    entry_points={'paste.app_factory': 'main = pp.user.service:main'}
+)
