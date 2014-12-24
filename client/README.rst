@@ -1,5 +1,5 @@
 pp-user-client
-========================
+==============
 
 .. contents::
 
@@ -20,6 +20,6 @@ Run all tests
 
 From here you can do::
 
-    python runtests.py -s
+    pytest
 
 

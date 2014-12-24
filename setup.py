@@ -1,8 +1,7 @@
-import sys
-try:
-    from pkglib.multipkg import setup
-except ImportError:
-    print "pkglib is missing, please update your environment"
-    sys.exit(1)
+import os
+if os.path.exists("paver-minilib.zip"):
+    import sys
+    sys.path.insert(0, "paver-minilib.zip")
 
-setup()
+import paver.tasks
+paver.tasks.main()

@@ -1,30 +1,89 @@
-# $HeadURL$
+# -*- coding: utf-8 -*-
+"""
+Setuptools script for pp-user-model (pp.user.model)
+
+"""
+
+from setuptools import setup, find_packages
+
+# Get the version from the source or the cached egg version:
+import json
+import ConfigParser
+cp = ConfigParser.ConfigParser()
 try:
-    from pkglib.setuptools import setup
-except ImportError:
-    print "PkgLib is not available. Please run \"easy_install pkglib\""
-    import sys
-    sys.exit(1)
+    cp.read('../eggs_version.ini')
+    version = dict(cp.items('default'))['version']
+except:
+    # inside and egg, read the cache version instead.
+    with file("cached_version.json", "r") as fd:
+        version = json.loads(fd.read())['egg_version']
+else:
+    # write out the version so its cached for in egg use:
+    with file("cached_version.json", "w") as fd:
+        fd.write(json.dumps(dict(egg_version=version)))
 
-# ------------------ Define your C-extensions here --------------------- #
+Name = 'pp-user-model'
+ProjectUrl = ""
+Version = version
+Author = 'Oisin Mulvihill'
+AuthorEmail = 'oisin dot mulvihill gmail'
+Maintainer = Author
+Summary = 'User Service model package'
+License = ''
+Description = Summary
+ShortDescription = Summary
 
-# Conventions:
-# Source code under '<package root>/src/'
-# Extension modules names begin with an underscore: eg, '_xyz'
-# to differentiate them from regular Python modules.
+needed = [
+    'evasion-common',
+    'pymongo',
+    'pp-apiaccesstoken',
+    'pp-user-validate',
+]
 
-# import numpy
-# extra_compile_args = ['-O0']
+test_needed = [
+    'pytest',
+    'pytest-cov',
+]
 
-# setup( ext_modules = [
-#        Extension('acme.mypackage._foo', ['src/foo1.c', 'src/foo2.c']  \
-#                   include_dirs=[ numpy.get_include() ],
-#                   extra_compile_args=extra_compile_args,
-#        ),
-#        Extension('acme.mypackage._bar', ['src/bar1.c', 'src/bar2.c']  \
-#                   include_dirs=[ numpy.get_include() ],
-#                   extra_compile_args=extra_compile_args,
-#       ),
-# ])
+test_suite = 'pp.user.model.tests'
 
-setup()
+EagerResources = [
+    'pp',
+]
+ProjectScripts = [
+]
+
+PackageData = {
+    '': ['*.*'],
+}
+
+EntryPoints = {
+
+}
+
+
+setup(
+    url=ProjectUrl,
+    name=Name,
+    zip_safe=False,
+    version=Version,
+    author=Author,
+    author_email=AuthorEmail,
+    description=ShortDescription,
+    long_description=Description,
+    classifiers=[
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries",
+    ],
+    license=License,
+    scripts=ProjectScripts,
+    install_requires=needed,
+    tests_require=test_needed,
+    test_suite=test_suite,
+    include_package_data=True,
+    packages=find_packages(),
+    package_data=PackageData,
+    eager_resources=EagerResources,
+    entry_points=EntryPoints,
+    namespace_packages=['pp', 'pp.user'],
+)

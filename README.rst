@@ -1,5 +1,5 @@
-{project}
-==========================
+pp-user
+=======
 
 For more information see the sphinx documentation.
 
@@ -21,11 +21,10 @@ Quick start
 Running all tests
 ~~~~~~~~~~~~~~~~~
 
-The runtests.py is used for this and is called as follows::
+The py.test lib is used for this and is called as follows::
 
-    python runtests.py -sc nose.cfg
+    pytest
 
-The nose.cfg configures the locations of the egg packages to test.
 
 Run the server
 ~~~~~~~~~~~~~~
